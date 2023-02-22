@@ -1,76 +1,24 @@
-
 # set script parameters here
 param (
     [Parameter(Mandatory = $false, Position = 0, Helpmessage = "Do you want to uninstall? [Y/N]")]
     [ValidateSet(0, 1, 'true', 'false', 'yes', 'no', 'y', 'n', 'on', 'off', 'enabled', 'disabled')]
     [String]$uninstall = 'false',
+
+    # make sure to add the scriptStatus parameter to ensure we do not elevate in never-ending loop
     [Parameter(Mandatory = $false, Position = 1)]
-    [String]$scriptStatus
+    [String]$scriptStatus 
 )
 
-Function ParseBool {
-    [CmdletBinding()]
-    param(
-        [Parameter(Position = 0)]
-        [String]$inputVal
-    )
-    switch -regex ($inputVal.Trim()) {
-        "^(1|true|yes|y|on|enabled)$" { $true }
-
-        default { $false }
-    }
+# output if using -Verbose
+$Verbose = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Verbose")
+if ($Verbose) {
+    Write-Verbose "-Verbose flag found on $($PSVersionTable.Platform)"
 }
 
-Function GetYN {
-    [CmdletBinding()]
-    param(
-        [Parameter(Position = 0)]
-        [String]$msg,
-        [string]$BackgroundColor = "Black",
-        [string]$ForegroundColor = "DarkGreen"
-    )
-
-    Do {
-        # Write-Host -BackgroundColor $BackgroundColor -ForegroundColor $ForegroundColor -NoNewline "${msg} "
-        Write-Host -ForegroundColor $ForegroundColor -NoNewline "${msg} "
-        $answer = Read-Host
-    }
-    Until(($answer -eq "Y") -or ($answer -eq "N"))
-
-    return $answer
-}
-
-Function GetElevation {
-    Write-Host "Checking admin rights on platform: $($PSVersionTable.platform.ToString())" -ForegroundColor Blue;
-
-    # Windows check
-    if ($PSVersionTable.PSEdition -eq "Desktop" -or $PSVersionTable.Platform -eq "Win32NT" -or $PSVersionTable.PSVersion.Major -le 5) {
-        # get current user context
-        $currentPrincipal = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
-  
-        # get administrator role
-        $administratorsRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
-
-        if ($currentPrincipal.IsInRole($administratorsRole)) {
-            Write-Host "Success. Script is running with Administrator privileges!" -ForegroundColor Green
-            return $true
-        }
-        else {
-            return $false
-        }
-    }
-    
-    # Unix, Linux and Mac OSX Check
-    if ($PSVersionTable.Platform -eq "Unix") {
-        if ($(whoami) -eq "root") {
-            Write-Host "Success. Script is running with Administrator privileges!" -ForegroundColor Green
-            return $true            
-        }
-        else {
-            Write-Warning "$(whoami) is not an Administrator!"
-            return $false
-        }
-    }
+# output if using -Debug
+$Debug = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug")
+if ($Debug) {
+    Write-Debug "-Debug flag found on $($PSVersionTable.Platform)"
 }
 
 # ############### #
@@ -78,6 +26,9 @@ Function GetElevation {
 # START OF SCRIPT #
 #                 #
 # ############### #
+
+# Include the CommonFunctions.ps1 file
+. (Join-Path $PSScriptRoot CommonFunctions.ps1)
 
 if (!$(GetElevation)) {
 
@@ -96,25 +47,12 @@ if (!$(GetElevation)) {
         $MyInvocation.MyCommand.Definition,
         $uninstall
         "RELAUNCHING"
+        $Debug ? "-Debug" : $null
+        $Verbose ? "-Verbose" : $null
     )
 
-    Write-Host "Relaunching using arguments:" $argumentsList -ForegroundColor Blue
-
-    # Windows check
-    if ($PSVersionTable.PSEdition -eq "Desktop" -or $PSVersionTable.Platform -eq "Win32NT") {
-        # Relaunch as an elevated process
-        Start-Process powershell -Verb runAs -ArgumentList $argumentsList
-    }
-
-    # Unix, Linux and Mac OSX Check
-    if ($PSVersionTable.Platform -eq "Unix") {
-        # Relaunch as an elevated process
-        sudo pwsh $argumentsList
-    }
-    
-    exit
+    ExecuteElevation $argumentsList
 }
-
 
 # ###################################################################
 #
@@ -126,9 +64,36 @@ if (!$(GetElevation)) {
 $doUninstall = ParseBool $uninstall
 Write-Host "Parameter found: uninstall: $doUninstall" -ForegroundColor Green
 
-# Define common variables
-$cloudHomeEnvVar = "HOME" 
+# https://adamtheautomator.com/powershell-environment-variables/
+# List PowerShell's Environmental Variables
+# Get-Childitem -Path Env:* | Sort-Object Name
+
+$cloudHomeEnvVar = "OneDrive" 
 $cloudHomeDir = [Environment]::GetEnvironmentVariable($cloudHomeEnvVar)
+$userName = [Environment]::GetEnvironmentVariable("UserName") # $env:USERNAME
+$programData = [Environment]::GetFolderPath("CommonApplicationData") # $env:ProgramData
+$appData = [Environment]::GetFolderPath('ApplicationData') # $env:APPDATA
+$programFiles = [Environment]::GetFolderPath("ProgramFiles") # $env:ProgramFiles
+
+Write-Host ""
+Write-Host "Environment Variables:" -ForegroundColor Magenta
+Write-Host "${cloudHomeEnvVar}: $cloudHomeDir" -ForegroundColor Magenta
+Write-Host "userName: $userName" -ForegroundColor Magenta
+Write-Host "appData: $appData" -ForegroundColor Magenta
+Write-Host "programData: $programData" -ForegroundColor Magenta
+Write-Host "programFiles: $programFiles" -ForegroundColor Magenta
+Write-Host ""
+
+#############################
+# DEBUG WITH DUMMY VARIABLES
+if ($Debug) {
+    Write-Host "!!!!!! DEBUGGING WITH DUMMY VARIABLES !!!!!!!"  -ForegroundColor Red
+    $userName = $(whoami)
+    $cloudHomeDir = "/Users/perivar/OneDrive/"
+    $programData = "/Users/perivar/Temp/programdata"
+    $appData = "/Users/perivar/Temp/appdata"
+}
+#############################
 
 # Make sure the cloudHomeDir parameter exists
 if ($cloudHomeDir -ne $null) {
@@ -139,36 +104,13 @@ else {
     exit    
 }
 
-# https://adamtheautomator.com/powershell-environment-variables/
-# List PowerShell's Environmental Variables
-# Get-Childitem -Path Env:* | Sort-Object Name
-
-$userName = [Environment]::GetEnvironmentVariable("UserName") # $env:USERNAME
-$programData = [Environment]::GetFolderPath("CommonApplicationData") # $env:ProgramData
-$appData = [Environment]::GetFolderPath('ApplicationData') # $env:APPDATA
-$programFiles = [Environment]::GetFolderPath("ProgramFiles") # $env:ProgramFiles
-
-Write-Host ""
-Write-Host "Environment Variables:" -ForegroundColor Magenta
-Write-Host "userName: $userName" -ForegroundColor Magenta
-Write-Host "appData: $appData" -ForegroundColor Magenta
-Write-Host "programData: $programData" -ForegroundColor Magenta
-Write-Host "programFiles: $programFiles" -ForegroundColor Magenta
-Write-Host ""
-
-# DEBUG
-# overwrite with dummy variables
-$userName = $(whoami)
-$cloudHomeDir = "/Users/perivar/OneDrive/"
-$programData = "/Users/perivar/Temp/programdata"
-$appData = "/Users/perivar/Temp/appdata"
-
 # define paths
 $sourceProgramData = Join-Path "${programData}" "Valhalla DSP, LLC"
 $targetProgramData = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Valhalla DSP, LLC"
 $sourceRoaming = Join-Path "${appData}" "Valhalla DSP, LLC"
 $targetRoaming = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Valhalla DSP, LLC"
 
+Write-Host ""
 Write-Host "Directory Paths:" -ForegroundColor Magenta
 Write-Host "sourceProgramData: $sourceProgramData" -ForegroundColor Magenta
 Write-Host "targetProgramData: $targetProgramData" -ForegroundColor Magenta
