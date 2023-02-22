@@ -70,29 +70,20 @@ Write-Host "Parameter found: uninstall: $doUninstall" -ForegroundColor Green
 
 $cloudHomeEnvVar = "OneDrive" 
 $cloudHomeDir = [Environment]::GetEnvironmentVariable($cloudHomeEnvVar)
-$userName = [Environment]::GetEnvironmentVariable("UserName") # $env:USERNAME
 $programData = [Environment]::GetFolderPath("CommonApplicationData") # $env:ProgramData
-$appData = [Environment]::GetFolderPath('ApplicationData') # $env:APPDATA
-$programFiles = [Environment]::GetFolderPath("ProgramFiles") # $env:ProgramFiles
 
 Write-Host ""
 Write-Host "Environment Variables:" -ForegroundColor Magenta
 Write-Host "${cloudHomeEnvVar}: $cloudHomeDir" -ForegroundColor Magenta
-Write-Host "userName: $userName" -ForegroundColor Magenta
-Write-Host "appData: $appData" -ForegroundColor Magenta
 Write-Host "programData: $programData" -ForegroundColor Magenta
-Write-Host "programFiles: $programFiles" -ForegroundColor Magenta
 Write-Host ""
 
 #############################
 # DEBUG WITH DUMMY VARIABLES
 if ($Debug) {
     Write-Host "!!!!!! DEBUGGING WITH DUMMY VARIABLES !!!!!!!"  -ForegroundColor Red
-    $userName = $(whoami)
     $cloudHomeDir = "/Users/perivar/OneDrive/"
     $programData = "/Users/perivar/Temp/programdata"
-    $appData = "/Users/perivar/Temp/appdata"
-    $programFiles = "/Users/perivar/Temp/programfiles"
 }
 #############################
 
@@ -106,17 +97,13 @@ else {
 }
 
 # define paths
-$sourceProgramData = Join-Path "${programData}" "Valhalla DSP, LLC"
-$targetProgramData = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Valhalla DSP, LLC"
-$sourceRoaming = Join-Path "${appData}" "Valhalla DSP, LLC"
-$targetRoaming = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Valhalla DSP, LLC"
+$source = Join-Path "${programData}" "Sonic Academy"
+$target = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Sonic Academy"
 
 Write-Host ""
 Write-Host "Directory Paths:" -ForegroundColor Magenta
-Write-Host "sourceProgramData: $sourceProgramData" -ForegroundColor Magenta
-Write-Host "targetProgramData: $targetProgramData" -ForegroundColor Magenta
-Write-Host "sourceRoaming: $sourceRoaming" -ForegroundColor Magenta
-Write-Host "targetRoaming: $targetRoaming" -ForegroundColor Magenta
+Write-Host "source: $source" -ForegroundColor Magenta
+Write-Host "target: $target" -ForegroundColor Magenta
 Write-Host ""
 
 # +-----------------------+-----------------------------------------------------------+
@@ -134,24 +121,22 @@ Write-Host ""
 # DELETE:   (Get-Item C:\SPI).Delete() 
 # ADD:      New-Item -ItemType SymbolicLink -Path C:\SPI -Target "C:\Users\Chino\Dropbox (Reserve Membership)\SPI"
 
+if (Test-Path -Path $source -PathType Container) {
 
-# FIRST SETUP THE PROGRAMDATA DIRECTORY JUNCTION
-if (Test-Path -Path $sourceprogramdata -PathType Container) {
-
-    Write-Warning "Folder '${sourceprogramdata}' already exist."
+    Write-Warning "Folder '${source}' already exist."
 
     if ($doUninstall) {
         $answer = "Y"
     }
     else {
-        $answer = GetYN "Do you want to delete the valhalla programdata directory? (Y/N)"
+        $answer = GetYN "Do you want to delete the source directory? (Y/N)"
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the programdata directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceprogramdata}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the source directory" -ForegroundColor DarkBlue
+        Write-Host "Removing the folder: '${source}' ..." -ForegroundColor DarkBlue
 
-        (Get-Item ${sourceprogramdata}).Delete() 
+        (Get-Item ${source}).Delete() 
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
@@ -160,43 +145,11 @@ if (Test-Path -Path $sourceprogramdata -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourceprogramdata}' does not exist."
+    Write-Warning "The folder '${source}' does not exist."
 
     if (!$doUninstall) {
-        Write-Host "We are proceeding to add a symbolic link to the programdata directory" -ForegroundColor DarkBlue
-        New-Item -ItemType SymbolicLink -Path $sourceprogramdata -Target $targetprogramdata
+        Write-Host "We are proceeding to add a symbolic link to the target directory" -ForegroundColor DarkBlue
+        New-Item -ItemType SymbolicLink -Path $source -Target $target
     }
 }
 
-# THEN SETUP THE ROAMING DIRECTORY JUNCTION
-if (Test-Path -Path $sourceroaming -PathType Container) {
-    
-    Write-Warning "Folder '${sourceroaming}' already exist."
-    
-    if ($doUninstall) {
-        $answer = "Y"
-    }
-    else {
-        $answer = GetYN "Do you want to delete the valhalla roaming directory? (Y/N)"
-    }
-
-    if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the roaming directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceroaming}' ..." -ForegroundColor DarkBlue
-    
-        (Get-Item ${sourceroaming}).Delete() 
-    }
-    elseif ($answer -eq "N") {
-        Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
-        exit
-    }
-
-}
-else { 
-    Write-Warning "The folder '${sourceroaming}' does not exist."
-
-    if (!$doUninstall) {
-        Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor DarkBlue
-        New-Item -ItemType SymbolicLink -Path $sourceroaming -Target $targetroaming
-    }
-}

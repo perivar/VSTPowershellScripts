@@ -106,17 +106,22 @@ else {
 }
 
 # define paths
-$sourceProgramData = Join-Path "${programData}" "Valhalla DSP, LLC"
-$targetProgramData = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Valhalla DSP, LLC"
-$sourceRoaming = Join-Path "${appData}" "Valhalla DSP, LLC"
-$targetRoaming = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Valhalla DSP, LLC"
+$dmProgramFiles = Join-Path "${programFiles}" "Devious Machines"
+$sourceProgramFiles = Join-Path "${programFiles}" "Devious Machines" "Duck"
+$targetProgramFiles = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Devious Machines" "Duck" "ProgramFiles"
+
+$dmProgramData = Join-Path "${programData}" "Devious Machines"
+$sourceProgramData = Join-Path "${programData}" "Devious Machines" "Duck"
+$targetProgramData = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Devious Machines" "Duck" "ProgramData"
 
 Write-Host ""
 Write-Host "Directory Paths:" -ForegroundColor Magenta
+Write-Host "dmProgramFiles: $dmProgramFiles" -ForegroundColor Magenta
+Write-Host "sourceProgramFiles: $sourceProgramFiles" -ForegroundColor Magenta
+Write-Host "targetProgramFiles: $targetProgramFiles" -ForegroundColor Magenta
+Write-Host "dmProgramData: $dmProgramData" -ForegroundColor Magenta
 Write-Host "sourceProgramData: $sourceProgramData" -ForegroundColor Magenta
 Write-Host "targetProgramData: $targetProgramData" -ForegroundColor Magenta
-Write-Host "sourceRoaming: $sourceRoaming" -ForegroundColor Magenta
-Write-Host "targetRoaming: $targetRoaming" -ForegroundColor Magenta
 Write-Host ""
 
 # +-----------------------+-----------------------------------------------------------+
@@ -135,23 +140,23 @@ Write-Host ""
 # ADD:      New-Item -ItemType SymbolicLink -Path C:\SPI -Target "C:\Users\Chino\Dropbox (Reserve Membership)\SPI"
 
 
-# FIRST SETUP THE PROGRAMDATA DIRECTORY JUNCTION
-if (Test-Path -Path $sourceprogramdata -PathType Container) {
+# FIRST SETUP THE Program Files DIRECTORY JUNCTION
+if (Test-Path -Path $sourceProgramFiles -PathType Container) {
 
-    Write-Warning "Folder '${sourceprogramdata}' already exist."
+    Write-Warning "Folder '${sourceProgramFiles}' already exist."
 
     if ($doUninstall) {
         $answer = "Y"
     }
     else {
-        $answer = GetYN "Do you want to delete the valhalla programdata directory? (Y/N)"
+        $answer = GetYN "Do you want to delete the Devious Machines Program Files Duck directory? (Y/N)"
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the programdata directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceprogramdata}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the Devious Machines Program Files Duck Directory" -ForegroundColor DarkBlue
+        Write-Host "Removing the folder: '${sourceProgramFiles}' ..." -ForegroundColor DarkBlue
 
-        (Get-Item ${sourceprogramdata}).Delete() 
+        (Get-Item ${sourceProgramFiles}).Delete() 
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
@@ -160,31 +165,43 @@ if (Test-Path -Path $sourceprogramdata -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourceprogramdata}' does not exist."
+    Write-Warning "The folder '${sourceProgramFiles}' does not exist."
 
     if (!$doUninstall) {
-        Write-Host "We are proceeding to add a symbolic link to the programdata directory" -ForegroundColor DarkBlue
-        New-Item -ItemType SymbolicLink -Path $sourceprogramdata -Target $targetprogramdata
+
+        # Check that the DeviousMachines folder exists
+        if (Test-Path -Path $dmProgramFiles -PathType Container) {
+            Write-Host "Folder '${dmProgramFiles}' already exist." -ForegroundColor DarkBlue
+        }
+        else {
+            Write-Warning "The folder '${dmProgramFiles}' does not exist."
+            Write-Host "Creating '${dmProgramFiles}' ..." -ForegroundColor DarkBlue
+                    
+            New-Item -ItemType Directory -Force -Path $dmProgramFiles
+        }
+
+        Write-Host "We are proceeding to add a symbolic link to the Devious Machines Program Files Duck Directory" -ForegroundColor DarkBlue
+        New-Item -ItemType SymbolicLink -Path $sourceProgramFiles -Target $targetProgramFiles
     }
 }
 
-# THEN SETUP THE ROAMING DIRECTORY JUNCTION
-if (Test-Path -Path $sourceroaming -PathType Container) {
+# THEN SETUP THE ProgramData DIRECTORY JUNCTION
+if (Test-Path -Path $sourceProgramData -PathType Container) {
     
-    Write-Warning "Folder '${sourceroaming}' already exist."
+    Write-Warning "Folder '${sourceProgramData}' already exist."
     
     if ($doUninstall) {
         $answer = "Y"
     }
     else {
-        $answer = GetYN "Do you want to delete the valhalla roaming directory? (Y/N)"
+        $answer = GetYN "Do you want to delete the Devious Machines ProgramData Duck directory? (Y/N)"
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the roaming directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceroaming}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the Devious Machines ProgramData Duck directory" -ForegroundColor DarkBlue
+        Write-Host "Removing the folder: '${sourceProgramData}' ..." -ForegroundColor DarkBlue
     
-        (Get-Item ${sourceroaming}).Delete() 
+        (Get-Item ${sourceProgramData}).Delete() 
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
@@ -193,10 +210,21 @@ if (Test-Path -Path $sourceroaming -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourceroaming}' does not exist."
+    Write-Warning "The folder '${sourceProgramData}' does not exist."
 
     if (!$doUninstall) {
+        # Check that the DeviousMachines folder exists
+        if (Test-Path -Path $dmProgramData -PathType Container) {
+            Write-Host "Folder '${dmProgramData}' already exist." -ForegroundColor DarkBlue
+        }
+        else {
+            Write-Warning "The folder '${dmProgramData}' does not exist."
+            Write-Host "Creating '${dmProgramData}' ..." -ForegroundColor DarkBlue
+                            
+            New-Item -ItemType Directory -Force -Path $dmProgramData
+        }
+                
         Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor DarkBlue
-        New-Item -ItemType SymbolicLink -Path $sourceroaming -Target $targetroaming
+        New-Item -ItemType SymbolicLink -Path $sourceProgramData -Target $targetProgramData
     }
 }
