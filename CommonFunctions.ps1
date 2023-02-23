@@ -99,3 +99,134 @@ Function ExecuteElevation {
 
     exit
 }
+
+Function Add-RegistryItem {
+    <#
+    .SYNOPSIS
+    This function gives you the ability to create/change Windows registry keys and values. If you want to create a value but the key doesn't exist, it will create the key for you.
+
+    .PARAMETER RegPath
+    Path of the registry key to create/change
+
+    .PARAMETER RegValue
+    Name of the registry value to create/change
+
+    .PARAMETER RegData
+    The data of the registry value
+
+    .PARAMETER RegType
+    The type of the registry value. Allowed types: String,DWord,Binary,ExpandString,MultiString,None,QWord,Unknown. If no type is given, the function will use String as the type.
+
+    .EXAMPLE 
+    Add-RegistryItem -RegPath HKLM:\SomeKey -RegValue SomeValue -RegData 1111 -RegType DWord
+    This will create the key SomeKey in HKLM:\. There it will create a value SomeValue of the type DWord with the data 1111.
+
+    .NOTES
+    Author: Dominik Britz
+    Source: https://github.com/DominikBritz/Misc-PowerShell
+    #>
+    [CmdletBinding()]
+    PARAM
+    (
+        $RegPath,
+        $RegValue,
+        $RegData,
+        [ValidateSet('String', 'DWord', 'Binary', 'ExpandString', 'MultiString', 'None', 'QWord', 'Unknown')]
+        $RegType = 'String'    
+    )
+
+    If (-not $RegValue) {
+        If (-not (Test-Path $RegPath)) {
+            Write-Verbose "The key $RegPath does not exist. Try to create it."
+            Try {
+                New-Item -Path $RegPath -Force
+                Write-Verbose "Creation of $RegPath was successfull"
+            }
+            Catch {
+                Write-Error -Message $_
+            }
+        }        
+    }
+
+    If ($RegValue) {
+        If (-not (Test-Path $RegPath)) {
+            Write-Verbose "The key $RegPath does not exist. Try to create it."
+            Try {
+                New-Item -Path $RegPath -Force
+                Set-ItemProperty -Path $RegPath -Name $RegValue -Value $RegData -Type $RegType -Force
+                Write-Verbose "Creation of $RegPath was successfull"
+            }
+            Catch {
+                Write-Error -Message $_
+            }
+        }
+        Else {
+            Write-Verbose "The key $RegPath already exists. Try to set value"
+            Try {
+                Set-ItemProperty -Path $RegPath -Name $RegValue -Value $RegData -Type $RegType -Force
+                Write-Verbose "Creation of $RegValue in $RegPath was successfull"           
+            }
+            Catch {
+                Write-Error -Message $_
+            }
+        }
+    }
+}
+
+Function Test-RegistryItem {  
+  
+    # Test-RegistryItem -RegPath "HKLM:\Software\Test" -RegValue "AKey"
+    param (  
+        [parameter(Mandatory = $true)]  
+        [ValidateNotNullOrEmpty()]$RegPath,  
+      
+        [parameter(Mandatory = $true)]  
+        [ValidateNotNullOrEmpty()]$RegValue  
+    )  
+      
+    try {  
+        Get-ItemProperty -Path $RegPath -Name $RegValue -ErrorAction Stop | Out-Null  
+        return $true  
+    } 
+    catch {  
+        return $false  
+    }  
+} 
+    
+Function Remove-RegistryItem {
+
+    # Remove-RegistryItem -RegPath "HKLM:\Software\Test" -RegValue "AKey"
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory = $True)]
+        [String] $RegPath,
+        [Parameter(Mandatory = $False)]
+        [String] $RegValue = ""
+    )
+    
+    If ((Test-Path $RegPath)) {
+        Write-Verbose "The key $RegPath exists. Trying to delete ..."
+    
+        If ($RegValue -ne '') {
+            # Delete the key Value
+            $RIArgs = @{Path = $RegPath
+                Name         = $RegValue
+                Force        = $True
+            }
+            Remove-ItemProperty @RIArgs | Out-Null
+        }
+        Else {
+            # Remove the Registry Path & Children!
+            $RIArgs = @{Path = $RegPath
+                Force        = $True
+                Recurse      = $True
+            }
+            Remove-Item @RIArgs
+        }
+    
+    }
+    else {
+        Write-Verbose "The key $RegPath does not exist."
+    }
+   
+}

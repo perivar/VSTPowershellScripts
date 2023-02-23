@@ -140,6 +140,18 @@ if (Test-Path -Path $source -PathType Container) {
         Write-Host "Removing the folder: '${source}' ..." -ForegroundColor DarkBlue
 
         (Get-Item ${source}).Delete() 
+
+        # Removing registry keys                 
+        Write-Host "We are proceeding to delete registry keys" -ForegroundColor DarkBlue
+
+        # https://woshub.com/how-to-access-and-manage-windows-registry-with-powershell/
+        # To remove all items in the reg key (but not the key itself)
+        # Remove-Item –Path "HKLM:\Software\Novation\*" –Recurse
+        # Remove-RegistryItem -RegPath "HKLM:\Software\Novation\*"
+        Remove-RegistryItem -RegPath "HKLM:\Software\Novation\BassStation"
+        Remove-RegistryItem -RegPath "HKLM:\Software\Novation\V-Station"
+        
+        Write-Host "Please re-run this script." -ForegroundColor DarkBlue
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
@@ -153,6 +165,16 @@ else {
     if (!$doUninstall) {
         Write-Host "We are proceeding to add a symbolic link to the target directory" -ForegroundColor DarkBlue
         New-Item -ItemType SymbolicLink -Path $source -Target $target
+
+        # Adding registry keys 
+        Write-Host "We are proceeding to add registry keys" -ForegroundColor DarkBlue
+
+        # Default is to add Novation to the 32 bit registry (Wow6432Node) otherwise use /f /reg:64		
+        # reg add "HKLM\Software\Novation" /f /reg:32
+        # reg add "HKLM\Software\Novation\BassStation" /v "InstallDir" /t REG_SZ /d "C:\\Program Files (x86)\\Novation\\Bass Station" /f /reg:32
+        # reg add "HKLM\Software\Novation\V-Station" /v "InstallDir" /t REG_SZ /d "C:\\Program Files (x86)\\Novation\\V-Station" /f /reg:32
+        Add-RegistryItem -RegPath "HKLM:\Software\Novation\BassStation" -RegValue "InstallDir" -RegData "C:\Program Files (x86)\Novation\Bass Station" -RegType String
+        Add-RegistryItem -RegPath "HKLM:\Software\Novation\V-Station" -RegValue "InstallDir" -RegData "C:\Program Files (x86)\Novation\V-Station"-RegType String
     }
 }
 
