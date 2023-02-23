@@ -69,17 +69,23 @@ Write-Host "Parameter found: uninstall: $doUninstall" -ForegroundColor Green
 $environment = GetEnvironmentVariables "OneDrive"
 
 # define paths
-$sourceProgramData = Join-Path $environment.programData "Valhalla DSP, LLC"
-$targetProgramData = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "Valhalla DSP, LLC"
-$sourceRoaming = Join-Path $environment.appData "Valhalla DSP, LLC"
-$targetRoaming = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "Valhalla DSP, LLC"
+$nicommon = Join-Path $environment.commonProgramFilesx86 "Native Instruments"
+$sourcecommon = Join-Path $environment.commonProgramFilesx86 "Native Instruments" "Massive"
+$targetcommon = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "Native Instruments" "Massive"
+$nipresets = Join-Path $environment.userDocuments "Native Instruments"
+$nimassivepresets = Join-Path $environment.userDocuments "Native Instruments" "Massive"
+$sourcepresets = Join-Path $environment.userDocuments "Native Instruments" "Massive" "Sounds"
+$targetpresets = Join-Path $environment.cloudHomeDir "Audio" "Presets" "Native Instruments Massive Presets"
 
 Write-Host ""
 Write-Host "Directory Paths:" -ForegroundColor Magenta
-Write-Host "sourceProgramData: $sourceProgramData" -ForegroundColor Magenta
-Write-Host "targetProgramData: $targetProgramData" -ForegroundColor Magenta
-Write-Host "sourceRoaming: $sourceRoaming" -ForegroundColor Magenta
-Write-Host "targetRoaming: $targetRoaming" -ForegroundColor Magenta
+Write-Host "nicommon: $nicommon" -ForegroundColor Magenta
+Write-Host "sourcecommon: $sourcecommon" -ForegroundColor Magenta
+Write-Host "targetcommon: $targetcommon" -ForegroundColor Magenta
+Write-Host "nipresets: $nipresets" -ForegroundColor Magenta
+Write-Host "nimassivepresets: $nimassivepresets" -ForegroundColor Magenta
+Write-Host "sourcepresets: $sourcepresets" -ForegroundColor Magenta
+Write-Host "targetpresets: $targetpresets" -ForegroundColor Magenta
 Write-Host ""
 
 # +-----------------------+-----------------------------------------------------------+
@@ -98,23 +104,23 @@ Write-Host ""
 # ADD:      New-Item -ItemType SymbolicLink -Path C:\SPI -Target "C:\Users\Chino\Dropbox (Reserve Membership)\SPI"
 
 
-# FIRST SETUP THE PROGRAMDATA DIRECTORY JUNCTION
-if (Test-Path -Path $sourceprogramdata -PathType Container) {
+# FIRST SETUP THE COMMON DIRECTORY JUNCTION
+if (Test-Path -Path $sourcecommon -PathType Container) {
 
-    Write-Warning "Folder '${sourceprogramdata}' already exist."
+    Write-Warning "Folder '${sourcecommon}' already exist."
 
     if ($doUninstall) {
         $answer = "Y"
     }
     else {
-        $answer = GetYN "Do you want to delete the valhalla programdata directory? (Y/N)"
+        $answer = GetYN "Do you want to delete the ni common massive directory? (Y/N)"
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the programdata directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceprogramdata}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the ni common massive directory" -ForegroundColor DarkBlue
+        Write-Host "Removing the folder: '${sourcecommon}' ..." -ForegroundColor DarkBlue
 
-        (Get-Item ${sourceprogramdata}).Delete() 
+        (Get-Item ${sourcecommon}).Delete() 
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
@@ -123,31 +129,42 @@ if (Test-Path -Path $sourceprogramdata -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourceprogramdata}' does not exist."
+    Write-Warning "The folder '${sourcecommon}' does not exist."
 
     if (!$doUninstall) {
+        # Check that the Native Instrument common folder exists
+        If (-not (Test-Path $nicommon -PathType Container)) {
+            Write-Warning "The folder '${nicommon}' does not exist."
+
+            Write-Host "We are proceeding to add ${nicommon}" -ForegroundColor DarkBlue
+            New-Item -ItemType Directory -Force -Path $nicommon
+        }
+        else {
+            Write-Host "OK. Native Instruments common folder already exists." -ForegroundColor Green
+        }
+
         Write-Host "We are proceeding to add a symbolic link to the programdata directory" -ForegroundColor DarkBlue
-        New-Item -ItemType SymbolicLink -Path $sourceprogramdata -Target $targetprogramdata
+        New-Item -ItemType SymbolicLink -Path $sourcecommon -Target $targetcommon
     }
 }
 
-# THEN SETUP THE ROAMING DIRECTORY JUNCTION
-if (Test-Path -Path $sourceroaming -PathType Container) {
+# THEN SETUP THE PRESET DIRECTORY JUNCTION
+if (Test-Path -Path $sourcepresets -PathType Container) {
     
-    Write-Warning "Folder '${sourceroaming}' already exist."
+    Write-Warning "Folder '${sourcepresets}' already exist."
     
     if ($doUninstall) {
         $answer = "Y"
     }
     else {
-        $answer = GetYN "Do you want to delete the valhalla roaming directory? (Y/N)"
+        $answer = GetYN "Do you want to delete the ni massive presets directory? (Y/N)"
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the roaming directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceroaming}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the presets directory" -ForegroundColor DarkBlue
+        Write-Host "Removing the folder: '${sourcepresets}' ..." -ForegroundColor DarkBlue
     
-        (Get-Item ${sourceroaming}).Delete() 
+        (Get-Item ${sourcepresets}).Delete() 
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
@@ -156,10 +173,33 @@ if (Test-Path -Path $sourceroaming -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourceroaming}' does not exist."
+    Write-Warning "The folder '${sourcepresets}' does not exist."
 
     if (!$doUninstall) {
+
+        # Check that the Native Instrument preset folder exists
+        If (-not (Test-Path $nipresets -PathType Container)) {
+            Write-Warning "The folder '${nipresets}' does not exist."
+        
+            Write-Host "We are proceeding to add ${nipresets}" -ForegroundColor DarkBlue
+            New-Item -ItemType Directory -Force -Path $nipresets
+        }
+        else {
+            Write-Host "OK. Native Instruments preset folder already exists." -ForegroundColor Green
+        }
+                
+        # Check that the Native Instrument Massive preset folder exists
+        If (-not (Test-Path $nimassivepresets -PathType Container)) {
+            Write-Warning "The folder '${nimassivepresets}' does not exist."
+        
+            Write-Host "We are proceeding to add ${nimassivepresets}" -ForegroundColor DarkBlue
+            New-Item -ItemType Directory -Force -Path $nimassivepresets
+        }
+        else {
+            Write-Host "OK. Native Instruments Massive preset folder already exists." -ForegroundColor Green
+        }
+
         Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor DarkBlue
-        New-Item -ItemType SymbolicLink -Path $sourceroaming -Target $targetroaming
+        New-Item -ItemType SymbolicLink -Path $sourcepresets -Target $targetpresets
     }
 }

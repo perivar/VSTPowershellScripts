@@ -64,44 +64,13 @@ if (!$(GetElevation)) {
 $doUninstall = ParseBool $uninstall
 Write-Host "Parameter found: uninstall: $doUninstall" -ForegroundColor Green
 
-# https://adamtheautomator.com/powershell-environment-variables/
-# List PowerShell's Environmental Variables
-# Get-Childitem -Path Env:* | Sort-Object Name
-
-$cloudHomeEnvVar = "OneDrive" 
-$cloudHomeDir = [Environment]::GetEnvironmentVariable($cloudHomeEnvVar)
-$programData = [Environment]::GetFolderPath("CommonApplicationData") # $env:ProgramData
-$programFilesx86 = [Environment]::GetEnvironmentVariable("ProgramFiles(x86)") # ${Env:ProgramFiles(x86)}
-
-Write-Host ""
-Write-Host "Environment Variables:" -ForegroundColor Magenta
-Write-Host "${cloudHomeEnvVar}: $cloudHomeDir" -ForegroundColor Magenta
-Write-Host "programData: $programData" -ForegroundColor Magenta
-Write-Host "programFilesx86: $programFilesx86" -ForegroundColor Magenta
-Write-Host ""
-
-#############################
-# DEBUG WITH DUMMY VARIABLES
-if ($Debug) {
-    Write-Host "!!!!!! DEBUGGING WITH DUMMY VARIABLES !!!!!!!"  -ForegroundColor Red
-    $cloudHomeDir = "/Users/perivar/OneDrive/"
-    $programData = "/Users/perivar/Temp/programdata"
-    $programFilesx86 = "/Users/perivar/Temp/programFilesx86"
-}
-#############################
-
-# Make sure the cloudHomeDir parameter exists
-if ($cloudHomeDir -ne $null) {
-    Write-Host "The $cloudHomeEnvVar environment variable was found: $cloudHomeDir" -ForegroundColor Green
-}
-else {
-    Write-Error "The $cloudHomeEnvVar environment variable cannot be found!"
-    exit    
-}
+# Include the GetEnvironment.ps1 file
+. (Join-Path $PSScriptRoot GetEnvironment.ps1)
+$environment = GetEnvironmentVariables "OneDrive"
 
 # define paths
-$source = Join-Path "${programFilesx86}" "Novation"
-$target = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Novation"
+$source = Join-Path $environment.programFilesx86 "Novation"
+$target = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "Novation"
 
 Write-Host ""
 Write-Host "Directory Paths:" -ForegroundColor Magenta

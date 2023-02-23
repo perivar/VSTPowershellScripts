@@ -64,55 +64,18 @@ if (!$(GetElevation)) {
 $doUninstall = ParseBool $uninstall
 Write-Host "Parameter found: uninstall: $doUninstall" -ForegroundColor Green
 
-# https://adamtheautomator.com/powershell-environment-variables/
-# List PowerShell's Environmental Variables
-# Get-Childitem -Path Env:* | Sort-Object Name
-
-$cloudHomeEnvVar = "OneDrive" 
-$cloudHomeDir = [Environment]::GetEnvironmentVariable($cloudHomeEnvVar)
-$userName = [Environment]::GetEnvironmentVariable("UserName") # $env:USERNAME
-$programData = [Environment]::GetFolderPath("CommonApplicationData") # $env:ProgramData
-$appData = [Environment]::GetFolderPath('ApplicationData') # $env:APPDATA
-$programFiles = [Environment]::GetFolderPath("ProgramFiles") # $env:ProgramFiles
-
-Write-Host ""
-Write-Host "Environment Variables:" -ForegroundColor Magenta
-Write-Host "${cloudHomeEnvVar}: $cloudHomeDir" -ForegroundColor Magenta
-Write-Host "userName: $userName" -ForegroundColor Magenta
-Write-Host "appData: $appData" -ForegroundColor Magenta
-Write-Host "programData: $programData" -ForegroundColor Magenta
-Write-Host "programFiles: $programFiles" -ForegroundColor Magenta
-Write-Host ""
-
-#############################
-# DEBUG WITH DUMMY VARIABLES
-if ($Debug) {
-    Write-Host "!!!!!! DEBUGGING WITH DUMMY VARIABLES !!!!!!!"  -ForegroundColor Red
-    $userName = $(whoami)
-    $cloudHomeDir = "/Users/perivar/OneDrive/"
-    $programData = "/Users/perivar/Temp/programdata"
-    $appData = "/Users/perivar/Temp/appdata"
-    $programFiles = "/Users/perivar/Temp/programfiles"
-}
-#############################
-
-# Make sure the cloudHomeDir parameter exists
-if ($cloudHomeDir -ne $null) {
-    Write-Host "The $cloudHomeEnvVar environment variable was found: $cloudHomeDir" -ForegroundColor Green
-}
-else {
-    Write-Error "The $cloudHomeEnvVar environment variable cannot be found!"
-    exit    
-}
+# Include the GetEnvironment.ps1 file
+. (Join-Path $PSScriptRoot GetEnvironment.ps1)
+$environment = GetEnvironmentVariables "OneDrive"
 
 # define paths
-$dmProgramFiles = Join-Path "${programFiles}" "Devious Machines"
-$sourceProgramFiles = Join-Path "${programFiles}" "Devious Machines" "Duck"
-$targetProgramFiles = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Devious Machines" "Duck" "ProgramFiles"
+$dmProgramFiles = Join-Path $environment.programFiles "Devious Machines"
+$sourceProgramFiles = Join-Path $environment.programFiles "Devious Machines" "Duck"
+$targetProgramFiles = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "Devious Machines" "Duck" "ProgramFiles"
 
-$dmProgramData = Join-Path "${programData}" "Devious Machines"
-$sourceProgramData = Join-Path "${programData}" "Devious Machines" "Duck"
-$targetProgramData = Join-Path "${cloudHomeDir}" "Audio" "Audio Software" "Devious Machines" "Duck" "ProgramData"
+$dmProgramData = Join-Path $environment.programData"Devious Machines"
+$sourceProgramData = Join-Path $environment.programData "Devious Machines" "Duck"
+$targetProgramData = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "Devious Machines" "Duck" "ProgramData"
 
 Write-Host ""
 Write-Host "Directory Paths:" -ForegroundColor Magenta
