@@ -16,22 +16,27 @@ Function GetEnvironmentVariables {
 
     $cloudHomeDir = [Environment]::GetEnvironmentVariable($cloudHomeEnvVar)
     $userName = [Environment]::GetEnvironmentVariable("UserName") # $env:USERNAME
-    $userDocuments = [Environment]::GetFolderPath("MyDocuments") # Join-Path $env:USERPROFILE "Documents"
-    $appData = [Environment]::GetFolderPath('ApplicationData') # $env:APPDATA
+    #$userDocuments = [Environment]::GetFolderPath("MyDocuments") # e.g. C:\Users\<user>\OneDrive\Documents
+    $userDocuments = Join-Path $env:USERPROFILE "Documents" # e.g. C:\Users\<user>\Documents
+    $appData = [Environment]::GetFolderPath('ApplicationData') # $env:APPDATA (i.e. C:\Users\<user>\AppData\Roaming)
+    $localAppData = [Environment]::GetFolderPath('LocalApplicationData') # $env:LOCALAPPDATA (i.e. C:\Users\<user>\AppData\Local)
     $programData = [Environment]::GetFolderPath("CommonApplicationData") # $env:ProgramData
-    $programFiles = [Environment]::GetFolderPath("ProgramFiles") # $env:ProgramFiles
+    $programFiles = [Environment]::GetFolderPath("ProgramFiles") #${Env:ProgramFiles}
     $programFilesx86 = [Environment]::GetEnvironmentVariable("ProgramFiles(x86)") # ${Env:ProgramFiles(x86)}
+    $commonProgramFiles = [Environment]::GetEnvironmentVariable("CommonProgramFiles") # ${Env:CommonProgramFiles}
     $commonProgramFilesx86 = [Environment]::GetEnvironmentVariable("CommonProgramFiles(x86)") # ${Env:CommonProgramFiles(x86)}
  
     Write-Host ""
     Write-Host "Environment Variables:" -ForegroundColor Magenta
     Write-Host "${cloudHomeEnvVar}: $cloudHomeDir" -ForegroundColor Magenta
     Write-Host "UserName: $userName" -ForegroundColor Magenta
-    Write-Host "userDocuments: $userDocuments" -ForegroundColor Magenta
+    Write-Host "UserDocuments: $userDocuments" -ForegroundColor Magenta
     Write-Host "AppData: $appData" -ForegroundColor Magenta
+    Write-Host "LocalAppData: $localAppData" -ForegroundColor Magenta
     Write-Host "ProgramData: $programData" -ForegroundColor Magenta
     Write-Host "ProgramFiles: $programFiles" -ForegroundColor Magenta
     Write-Host "ProgramFilesx86: $programFilesx86" -ForegroundColor Magenta
+    Write-Host "CommonProgramFiles: $commonProgramFiles" -ForegroundColor Magenta
     Write-Host "CommonProgramFilesx86: $commonProgramFilesx86" -ForegroundColor Magenta
     Write-Host ""
 
@@ -42,11 +47,13 @@ Function GetEnvironmentVariables {
     
         $cloudHomeDir = "/Users/perivar/OneDrive/"
         $userName = $(whoami)
-        $userDocuments = "/Users/perivar/Temp"
+        $userDocuments = "/Users/perivar/Temp/userDocuments"
         $appData = "/Users/perivar/Temp/appdata"
+        $localAppData = "/Users/perivar/Temp/localAppData"
         $programData = "/Users/perivar/Temp/programdata"
         $programFiles = "/Users/perivar/Temp/programfiles"
         $programFilesx86 = "/Users/perivar/Temp/programFilesx86"
+        $commonProgramFiles = "/Users/perivar/Temp/commonProgramFiles"
         $commonProgramFilesx86 = "/Users/perivar/Temp/commonProgramFilesx86"
     }
     #############################
@@ -65,9 +72,11 @@ Function GetEnvironmentVariables {
         userName              = $userName 
         userDocuments         = $userDocuments 
         appData               = $appData 
+        localAppData          = $localAppData 
         programData           = $programData 
         programFiles          = $programFiles 
         programFilesx86       = $programFilesx86 
+        commonProgramFiles    = $commonProgramFiles
         commonProgramFilesx86 = $commonProgramFilesx86 
     }
 

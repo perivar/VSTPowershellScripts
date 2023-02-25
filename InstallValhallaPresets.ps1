@@ -43,8 +43,9 @@ if (!$(GetElevation)) {
     Write-Error "$($MyInvocation.MyCommand.Name) is not running as Administrator, attempting to elevate..."
     
     $argumentsList = @(
-        '-File',
-        $MyInvocation.MyCommand.Definition,
+        '-NoExit'
+        '-File'
+        '"' + $MyInvocation.MyCommand.Definition + '"'
         $uninstall
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
@@ -111,13 +112,13 @@ if (Test-Path -Path $sourceprogramdata -PathType Container) {
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the programdata directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceprogramdata}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the programdata directory" -ForegroundColor Cyan
+        Write-Host "Removing the folder: '${sourceprogramdata}' ..." -ForegroundColor Cyan
 
         (Get-Item ${sourceprogramdata}).Delete() 
     }
     elseif ($answer -eq "N") {
-        Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
+        Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
         exit
     }
 
@@ -126,7 +127,7 @@ else {
     Write-Warning "The folder '${sourceprogramdata}' does not exist."
 
     if (!$doUninstall) {
-        Write-Host "We are proceeding to add a symbolic link to the programdata directory" -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to add a symbolic link to the programdata directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceprogramdata -Target $targetprogramdata
     }
 }
@@ -144,13 +145,13 @@ if (Test-Path -Path $sourceroaming -PathType Container) {
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the roaming directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceroaming}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the roaming directory" -ForegroundColor Cyan
+        Write-Host "Removing the folder: '${sourceroaming}' ..." -ForegroundColor Cyan
     
         (Get-Item ${sourceroaming}).Delete() 
     }
     elseif ($answer -eq "N") {
-        Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
+        Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
         exit
     }
 
@@ -159,7 +160,7 @@ else {
     Write-Warning "The folder '${sourceroaming}' does not exist."
 
     if (!$doUninstall) {
-        Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceroaming -Target $targetroaming
     }
 }

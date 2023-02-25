@@ -29,7 +29,7 @@ Function GetYN {
         [Parameter(Position = 0)]
         [String]$msg,
         [string]$BackgroundColor = "Black",
-        [string]$ForegroundColor = "DarkGreen"
+        [string]$ForegroundColor = "Green"
     )
 
     Do {
@@ -44,7 +44,7 @@ Function GetYN {
 
 Function GetElevation {
     # see https://www.powershellgallery.com/packages/Sudo/2.1.0/Content/Private%5CGetElevation.ps1
-    Write-Host "Checking admin rights on platform: $($PSVersionTable.platform.ToString())" -ForegroundColor Blue;
+    Write-Host "Checking admin rights on platform: $($PSVersionTable.platform.ToString())" -ForegroundColor Blue
 
     # Windows check
     if ($PSVersionTable.PSEdition -eq "Desktop" -or $PSVersionTable.Platform -eq "Win32NT" -or $PSVersionTable.PSVersion.Major -le 5) {
@@ -88,7 +88,7 @@ Function ExecuteElevation {
     # Windows check
     if ($PSVersionTable.PSEdition -eq "Desktop" -or $PSVersionTable.Platform -eq "Win32NT") {
         # Relaunch as an elevated process
-        Start-Process powershell -Verb runAs -ArgumentList $argumentsList
+        Start-Process pwsh -Verb runAs -ArgumentList $argumentsList
     }
 
     # Unix, Linux and Mac OSX Check

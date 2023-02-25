@@ -70,11 +70,13 @@ Write-Host "Parameter found: uninstall: $doUninstall" -ForegroundColor Green
 $environment = GetEnvironmentVariables "OneDrive"
 
 # define paths
-$source = Join-Path $environment.userDocuments "AudioRealism"
-$target = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "AudioRealism"
+$liquidsonics = Join-Path $environment.programFilesx86 "LiquidSonics"
+$source = Join-Path $environment.programFilesx86 "LiquidSonics" "Reverberate"
+$target = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "LiquidSonics" "Reverberate"
 
 Write-Host ""
 Write-Host "Directory Paths:" -ForegroundColor Magenta
+Write-Host "liquidsonics: $liquidsonics" -ForegroundColor Magenta
 Write-Host "source: $source" -ForegroundColor Magenta
 Write-Host "target: $target" -ForegroundColor Magenta
 Write-Host ""
@@ -102,7 +104,7 @@ if (Test-Path -Path $source -PathType Container) {
         $answer = "Y"
     }
     else {
-        $answer = GetYN "Do you want to delete the source directory? (Y/N)"
+        $answer = GetYN "Do you want to delete the LiquidSonics Reverberate directory? (Y/N)"
     }
 
     if ($answer -eq "Y") {
@@ -121,6 +123,18 @@ else {
     Write-Warning "The folder '${source}' does not exist."
 
     if (!$doUninstall) {
+
+        # Check that the LiquidSonics folder exists
+        If (-not (Test-Path $liquidsonics -PathType Container)) {
+            Write-Warning "The folder '${liquidsonics}' does not exist."
+        
+            Write-Host "We are proceeding to add ${liquidsonics}" -ForegroundColor Cyan
+            New-Item -ItemType Directory -Force -Path $liquidsonics
+        }
+        else {
+            Write-Host "OK. LiquidSonics folder already exists." -ForegroundColor Green
+        }
+
         Write-Host "We are proceeding to add a symbolic link to the target directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $source -Target $target
     }

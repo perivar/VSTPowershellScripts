@@ -43,8 +43,9 @@ if (!$(GetElevation)) {
     Write-Error "$($MyInvocation.MyCommand.Name) is not running as Administrator, attempting to elevate..."
     
     $argumentsList = @(
-        '-File',
-        $MyInvocation.MyCommand.Definition,
+        '-NoExit'
+        '-File'
+        '"' + $MyInvocation.MyCommand.Definition + '"'
         $uninstall
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
@@ -116,13 +117,13 @@ if (Test-Path -Path $sourceProgramFiles -PathType Container) {
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the Devious Machines Program Files Duck Directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceProgramFiles}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the Devious Machines Program Files Duck Directory" -ForegroundColor Cyan
+        Write-Host "Removing the folder: '${sourceProgramFiles}' ..." -ForegroundColor Cyan
 
         (Get-Item ${sourceProgramFiles}).Delete() 
     }
     elseif ($answer -eq "N") {
-        Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
+        Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
         exit
     }
 
@@ -134,16 +135,16 @@ else {
 
         # Check that the DeviousMachines folder exists
         if (Test-Path -Path $dmProgramFiles -PathType Container) {
-            Write-Host "Folder '${dmProgramFiles}' already exist." -ForegroundColor DarkBlue
+            Write-Host "Folder '${dmProgramFiles}' already exist." -ForegroundColor Cyan
         }
         else {
             Write-Warning "The folder '${dmProgramFiles}' does not exist."
-            Write-Host "Creating '${dmProgramFiles}' ..." -ForegroundColor DarkBlue
+            Write-Host "Creating '${dmProgramFiles}' ..." -ForegroundColor Cyan
                     
             New-Item -ItemType Directory -Force -Path $dmProgramFiles
         }
 
-        Write-Host "We are proceeding to add a symbolic link to the Devious Machines Program Files Duck Directory" -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to add a symbolic link to the Devious Machines Program Files Duck Directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramFiles -Target $targetProgramFiles
     }
 }
@@ -161,13 +162,13 @@ if (Test-Path -Path $sourceProgramData -PathType Container) {
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the Devious Machines ProgramData Duck directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourceProgramData}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the Devious Machines ProgramData Duck directory" -ForegroundColor Cyan
+        Write-Host "Removing the folder: '${sourceProgramData}' ..." -ForegroundColor Cyan
     
         (Get-Item ${sourceProgramData}).Delete() 
     }
     elseif ($answer -eq "N") {
-        Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
+        Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
         exit
     }
 
@@ -178,16 +179,16 @@ else {
     if (!$doUninstall) {
         # Check that the DeviousMachines folder exists
         if (Test-Path -Path $dmProgramData -PathType Container) {
-            Write-Host "Folder '${dmProgramData}' already exist." -ForegroundColor DarkBlue
+            Write-Host "Folder '${dmProgramData}' already exist." -ForegroundColor Cyan
         }
         else {
             Write-Warning "The folder '${dmProgramData}' does not exist."
-            Write-Host "Creating '${dmProgramData}' ..." -ForegroundColor DarkBlue
+            Write-Host "Creating '${dmProgramData}' ..." -ForegroundColor Cyan
                             
             New-Item -ItemType Directory -Force -Path $dmProgramData
         }
                 
-        Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramData -Target $targetProgramData
     }
 }

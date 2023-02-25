@@ -43,8 +43,9 @@ if (!$(GetElevation)) {
     Write-Error "$($MyInvocation.MyCommand.Name) is not running as Administrator, attempting to elevate..."
     
     $argumentsList = @(
-        '-File',
-        $MyInvocation.MyCommand.Definition,
+        '-NoExit'
+        '-File'
+        '"' + $MyInvocation.MyCommand.Definition + '"'
         $uninstall
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
@@ -105,13 +106,13 @@ if (Test-Path -Path $source -PathType Container) {
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the source directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${source}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the source directory" -ForegroundColor Cyan
+        Write-Host "Removing the folder: '${source}' ..." -ForegroundColor Cyan
 
         (Get-Item ${source}).Delete() 
     }
     elseif ($answer -eq "N") {
-        Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
+        Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
         exit
     }
 
@@ -120,7 +121,7 @@ else {
     Write-Warning "The folder '${source}' does not exist."
 
     if (!$doUninstall) {
-        Write-Host "We are proceeding to add a symbolic link to the target directory" -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to add a symbolic link to the target directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $source -Target $target
     }
 }

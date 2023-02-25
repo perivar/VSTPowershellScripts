@@ -43,8 +43,9 @@ if (!$(GetElevation)) {
     Write-Error "$($MyInvocation.MyCommand.Name) is not running as Administrator, attempting to elevate..."
     
     $argumentsList = @(
-        '-File',
-        $MyInvocation.MyCommand.Definition,
+        '-NoExit'
+        '-File'
+        '"' + $MyInvocation.MyCommand.Definition + '"'
         $uninstall
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
@@ -117,13 +118,13 @@ if (Test-Path -Path $sourcecommon -PathType Container) {
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the ni common massive directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourcecommon}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the ni common massive directory" -ForegroundColor Cyan
+        Write-Host "Removing the folder: '${sourcecommon}' ..." -ForegroundColor Cyan
 
         (Get-Item ${sourcecommon}).Delete() 
     }
     elseif ($answer -eq "N") {
-        Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
+        Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
         exit
     }
 
@@ -136,14 +137,14 @@ else {
         If (-not (Test-Path $nicommon -PathType Container)) {
             Write-Warning "The folder '${nicommon}' does not exist."
 
-            Write-Host "We are proceeding to add ${nicommon}" -ForegroundColor DarkBlue
+            Write-Host "We are proceeding to add ${nicommon}" -ForegroundColor Cyan
             New-Item -ItemType Directory -Force -Path $nicommon
         }
         else {
             Write-Host "OK. Native Instruments common folder already exists." -ForegroundColor Green
         }
 
-        Write-Host "We are proceeding to add a symbolic link to the programdata directory" -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to add a symbolic link to the programdata directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourcecommon -Target $targetcommon
     }
 }
@@ -161,13 +162,13 @@ if (Test-Path -Path $sourcepresets -PathType Container) {
     }
 
     if ($answer -eq "Y") {
-        Write-Host "We are proceeding to delete the presets directory" -ForegroundColor DarkBlue
-        Write-Host "Removing the folder: '${sourcepresets}' ..." -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to delete the presets directory" -ForegroundColor Cyan
+        Write-Host "Removing the folder: '${sourcepresets}' ..." -ForegroundColor Cyan
     
         (Get-Item ${sourcepresets}).Delete() 
     }
     elseif ($answer -eq "N") {
-        Write-Host "You selected NO, exiting ..." -ForegroundColor DarkBlue
+        Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
         exit
     }
 
@@ -181,7 +182,7 @@ else {
         If (-not (Test-Path $nipresets -PathType Container)) {
             Write-Warning "The folder '${nipresets}' does not exist."
         
-            Write-Host "We are proceeding to add ${nipresets}" -ForegroundColor DarkBlue
+            Write-Host "We are proceeding to add ${nipresets}" -ForegroundColor Cyan
             New-Item -ItemType Directory -Force -Path $nipresets
         }
         else {
@@ -192,14 +193,14 @@ else {
         If (-not (Test-Path $nimassivepresets -PathType Container)) {
             Write-Warning "The folder '${nimassivepresets}' does not exist."
         
-            Write-Host "We are proceeding to add ${nimassivepresets}" -ForegroundColor DarkBlue
+            Write-Host "We are proceeding to add ${nimassivepresets}" -ForegroundColor Cyan
             New-Item -ItemType Directory -Force -Path $nimassivepresets
         }
         else {
             Write-Host "OK. Native Instruments Massive preset folder already exists." -ForegroundColor Green
         }
 
-        Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor DarkBlue
+        Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourcepresets -Target $targetpresets
     }
 }
