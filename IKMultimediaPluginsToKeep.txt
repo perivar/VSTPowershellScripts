@@ -1,0 +1,18 @@
+TR5 Brickwall Limiter.dll
+TR5 Brickwall Limiter.vst3
+TR5 Classic Clipper.dll
+TR5 Classic Clipper.vst3
+TR5 Classic Comp.dll
+TR5 Classic Comp.vst3
+TR5 Classic EQ.dll
+TR5 Classic EQ.vst3
+TR5 Classic Multi Band Limiter.dll
+TR5 Classic Multi Band Limiter.vst3
+TR5 Linear Phase EQ.dll
+TR5 Linear Phase EQ.vst3
+TR5 Opto Comp.dll
+TR5 Opto Comp.vst3
+TR5 VC-670.dll
+TR5 VC-670.vst3
+TR5 EQP-1A.dll
+TR5 EQP-1A.vst3
