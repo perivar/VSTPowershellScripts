@@ -144,7 +144,7 @@ else {
         # reg add "HKLM\Software\Novation\BassStation" /v "InstallDir" /t REG_SZ /d "C:\\Program Files (x86)\\Novation\\Bass Station" /f /reg:32
         # reg add "HKLM\Software\Novation\V-Station" /v "InstallDir" /t REG_SZ /d "C:\\Program Files (x86)\\Novation\\V-Station" /f /reg:32
         Add-RegistryItem -RegPath "HKLM:\Software\Novation\BassStation" -RegValue "InstallDir" -RegData "C:\Program Files (x86)\Novation\Bass Station" -RegType String
-        Add-RegistryItem -RegPath "HKLM:\Software\Novation\V-Station" -RegValue "InstallDir" -RegData "C:\Program Files (x86)\Novation\V-Station"-RegType String
+        Add-RegistryItem -RegPath "HKLM:\Software\Novation\V-Station" -RegValue "InstallDir" -RegData "C:\Program Files (x86)\Novation\V-Station" -RegType String
     }
 }
 
