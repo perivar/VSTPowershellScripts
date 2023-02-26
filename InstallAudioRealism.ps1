@@ -9,6 +9,9 @@ param (
     [String]$scriptStatus 
 )
 
+Write-Error "THIS IS NO LONGER IN USE - SEE FOLDER AND CHECK FOR A SYMLINK INSTALLER"
+exit
+
 # output if using -Verbose
 $Verbose = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Verbose")
 if ($Verbose) {

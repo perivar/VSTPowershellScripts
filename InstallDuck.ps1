@@ -74,8 +74,8 @@ $dmProgramFiles = Join-Path $environment.programFiles "Devious Machines"
 $sourceProgramFiles = Join-Path $environment.programFiles "Devious Machines" "Duck"
 $targetProgramFiles = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "Devious Machines" "Duck" "ProgramFiles"
 
-$dmProgramData = Join-Path $environment.programData"Devious Machines"
-$sourceProgramData = Join-Path $environment.programData "Devious Machines" "Duck"
+$dmProgramData = Join-Path $environment.programData "DeviousMachines"
+$sourceProgramData = Join-Path $environment.programData "DeviousMachines" "Duck"
 $targetProgramData = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "Devious Machines" "Duck" "ProgramData"
 
 Write-Host ""

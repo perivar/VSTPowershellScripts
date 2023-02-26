@@ -72,7 +72,7 @@ $environment = GetEnvironmentVariables "OneDrive"
 # define paths
 $regPath = "HKCU:\Software\Tailored Noise\Sausage Fattener"
 $regValue = "InstallLocation" 
-$regData = Join-Path $environment.cloudHomeDir  "Audio" "VstPlugins (x64)" "Saturation (Console Tape Tube)" "Sausage Fattener"
+$regData = Join-Path $environment.cloudHomeDir "Audio" "VstPlugins (x64)" "Saturation (Console Tape Tube)" "Sausage Fattener"
 
 Write-Host ""
 Write-Host "Data:" -ForegroundColor Magenta
