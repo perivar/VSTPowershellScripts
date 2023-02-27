@@ -60,9 +60,10 @@ Function isOnMac {
 Function ParseBool {
     [CmdletBinding()]
     param(
-        [Parameter(Position = 0)]
+        [parameter(Mandatory = $true)]  
         [String]$inputVal
     )
+    
     switch -regex ($inputVal.Trim()) {
         "^(1|true|yes|y|on|enabled)$" { $true }
 
@@ -73,8 +74,9 @@ Function ParseBool {
 Function GetYN {
     [CmdletBinding()]
     param(
-        [Parameter(Position = 0)]
+        [parameter(Mandatory = $true)]  
         [String]$msg,
+
         [string]$BackgroundColor = "Black",
         [string]$ForegroundColor = "Green"
     )
@@ -95,8 +97,11 @@ Function GetElevation {
 
     # Windows check
     if ($PSVersionTable.PSEdition -eq "Desktop" -or $PSVersionTable.Platform -eq "Win32NT" -or $PSVersionTable.PSVersion.Major -le 5) {
+        # get current user
+        $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+        
         # get current user context
-        $currentPrincipal = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
+        $currentPrincipal = New-Object Security.Principal.WindowsPrincipal $currentUser
   
         # get administrator role
         $administratorsRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
@@ -106,6 +111,7 @@ Function GetElevation {
             return $true
         }
         else {
+            Write-Warning "$($currentUser.Name) is not an Administrator!"
             return $false
         }
     }
@@ -126,6 +132,7 @@ Function GetElevation {
 Function ExecuteElevation {
     [CmdletBinding()]
     param(
+        # if using Mandatory=$true we get an error
         [Parameter(Position = 0)]
         [string[]]$argumentsList
     )
@@ -173,9 +180,11 @@ Function Add-RegistryItem {
     Source: https://github.com/DominikBritz/Misc-PowerShell
     #>
     [CmdletBinding()]
-    PARAM
+    param
     (
+        [parameter(Mandatory = $true)]  
         $RegPath,
+
         $RegValue,
         $RegData,
         [ValidateSet('String', 'DWord', 'Binary', 'ExpandString', 'MultiString', 'None', 'QWord', 'Unknown')]
@@ -223,6 +232,7 @@ Function Add-RegistryItem {
 Function Test-RegistryItem {  
   
     # Test-RegistryItem -RegPath "HKLM:\Software\Test" -RegValue "AKey"
+    [CmdletBinding()]
     param (  
         [parameter(Mandatory = $true)]  
         [ValidateNotNullOrEmpty()]$RegPath,  
@@ -244,9 +254,10 @@ Function Remove-RegistryItem {
 
     # Remove-RegistryItem -RegPath "HKLM:\Software\Test" -RegValue "AKey"
     [CmdletBinding()]
-    Param (
+    param (
         [Parameter(Mandatory = $True)]
         [String] $RegPath,
+
         [Parameter(Mandatory = $False)]
         [String] $RegValue = ""
     )
@@ -282,7 +293,7 @@ Function Remove-RegistryItem {
 Function Remove-EmptyFolder {
     [CmdletBinding()]
     param(
-        [Parameter(Position = 0)]
+        [parameter(Mandatory = $true)]  
         [String]$path,
 
         # Remove hidden files, like thumbs.db
@@ -310,12 +321,15 @@ Function Remove-EmptyFolder {
         Write-Host "Removing empty folder '${path}'" -ForegroundColor Cyan
         Remove-Item -Force -Recurse:$removeHiddenFiles -LiteralPath $Path -WhatIf:$whatIf
     }
+    else {
+        Write-Warning "Not removing ${path} since it is not empty!"
+    }
 }
 
-Function Create-Folder-IfNotExist {
+Function New-Folder-IfNotExist {
     [CmdletBinding()]
     param(
-        [Parameter(Position = 0)]
+        [parameter(Mandatory = $true)]  
         [String]$path,
 
         # Set to true to test the script

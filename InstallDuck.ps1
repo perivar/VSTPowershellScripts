@@ -138,7 +138,7 @@ else {
     if (!$doUninstall) {
 
         # create the DeviousMachines folder if it does not already exists
-        Create-Folder-IfNotExist $dmProgramFiles
+        New-Folder-IfNotExist $dmProgramFiles
 
         Write-Host "We are proceeding to add a symbolic link to the Devious Machines Program Files Duck Directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramFiles -Target $targetProgramFiles
@@ -179,7 +179,7 @@ else {
     if (!$doUninstall) {
 
         # create the DeviousMachines folder if it does not already exists
-        Create-Folder-IfNotExist $dmProgramData
+        New-Folder-IfNotExist $dmProgramData
    
         Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramData -Target $targetProgramData

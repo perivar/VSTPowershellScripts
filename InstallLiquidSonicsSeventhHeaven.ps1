@@ -129,7 +129,7 @@ else {
     if (!$doUninstall) {
 
         # create the LiquidSonics folder if it does not already exists
-        Create-Folder-IfNotExist $liquidsonics
+        New-Folder-IfNotExist $liquidsonics
 
         Write-Host "We are proceeding to add a symbolic link to the target directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $source -Target $target

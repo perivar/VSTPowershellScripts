@@ -138,7 +138,7 @@ else {
     if (!$doUninstall) {
 
         # create the D16 Group folder if it does not already exists
-        Create-Folder-IfNotExist $d16ProgramFiles
+        New-Folder-IfNotExist $d16ProgramFiles
 
         Write-Host "We are proceeding to add a symbolic link to the D16 Group Program Files Frontier Directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramFiles -Target $targetProgramFiles
@@ -179,7 +179,7 @@ else {
     if (!$doUninstall) {
                 
         # create the D16 Group folder if it does not already exists
-        Create-Folder-IfNotExist $d16ProgramData
+        New-Folder-IfNotExist $d16ProgramData
                 
         Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramData -Target $targetProgramData

@@ -139,7 +139,7 @@ else {
     if (!$doUninstall) {
 
         # create the Native Instrument common folder if it does not already exists
-        Create-Folder-IfNotExist $nicommon
+        New-Folder-IfNotExist $nicommon
 
         Write-Host "We are proceeding to add a symbolic link to the programdata directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourcecommon -Target $targetcommon
@@ -183,10 +183,10 @@ else {
     if (!$doUninstall) {
 
         # create the Native Instrument preset folder if it does not already exists
-        Create-Folder-IfNotExist $nipresets
+        New-Folder-IfNotExist $nipresets
 
         # create the Native Instrument Massive preset folder if it does not already exists
-        Create-Folder-IfNotExist $nimassivepresets
+        New-Folder-IfNotExist $nimassivepresets
 
         Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourcepresets -Target $targetpresets
