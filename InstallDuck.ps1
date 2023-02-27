@@ -12,13 +12,13 @@ param (
 # output if using -Verbose
 $Verbose = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Verbose")
 if ($Verbose) {
-    Write-Verbose "-Verbose flag found on $($PSVersionTable.Platform)"
+    Write-Verbose "-Verbose flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # output if using -Debug
 $Debug = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug")
 if ($Debug) {
-    Write-Debug "-Debug flag found on $($PSVersionTable.Platform)"
+    Write-Debug "-Debug flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # ############### #
@@ -45,7 +45,7 @@ if (!$(GetElevation)) {
     $argumentsList = @(
         '-NoExit'
         '-File'
-        '"' + $MyInvocation.MyCommand.Definition + '"'
+        $(IsOnWindows) ? '"' + $MyInvocation.MyCommand.Definition + '"' : $MyInvocation.MyCommand.Definition
         $uninstall
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
@@ -118,9 +118,13 @@ if (Test-Path -Path $sourceProgramFiles -PathType Container) {
 
     if ($answer -eq "Y") {
         Write-Host "We are proceeding to delete the Devious Machines Program Files Duck Directory" -ForegroundColor Cyan
-        Write-Host "Removing the folder: '${sourceProgramFiles}' ..." -ForegroundColor Cyan
+        Write-Host "Removing the symbolic link to: '${sourceProgramFiles}' ..." -ForegroundColor Cyan
 
+        # remove the symbolic link
         (Get-Item ${sourceProgramFiles}).Delete() 
+
+        # remove the main folder if it's empty
+        Remove-EmptyFolder $dmProgramFiles
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
@@ -129,20 +133,12 @@ if (Test-Path -Path $sourceProgramFiles -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourceProgramFiles}' does not exist."
+    Write-Warning "The symbolic link to '${sourceProgramFiles}' does not exist."
 
     if (!$doUninstall) {
 
-        # Check that the DeviousMachines folder exists
-        if (Test-Path -Path $dmProgramFiles -PathType Container) {
-            Write-Host "Folder '${dmProgramFiles}' already exist." -ForegroundColor Cyan
-        }
-        else {
-            Write-Warning "The folder '${dmProgramFiles}' does not exist."
-            Write-Host "Creating '${dmProgramFiles}' ..." -ForegroundColor Cyan
-                    
-            New-Item -ItemType Directory -Force -Path $dmProgramFiles
-        }
+        # create the DeviousMachines folder if it does not already exists
+        Create-Folder-IfNotExist $dmProgramFiles
 
         Write-Host "We are proceeding to add a symbolic link to the Devious Machines Program Files Duck Directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramFiles -Target $targetProgramFiles
@@ -163,9 +159,13 @@ if (Test-Path -Path $sourceProgramData -PathType Container) {
 
     if ($answer -eq "Y") {
         Write-Host "We are proceeding to delete the Devious Machines ProgramData Duck directory" -ForegroundColor Cyan
-        Write-Host "Removing the folder: '${sourceProgramData}' ..." -ForegroundColor Cyan
+        Write-Host "Removing the symbolic link to: '${sourceProgramData}' ..." -ForegroundColor Cyan
     
-        (Get-Item ${sourceProgramData}).Delete() 
+        # remove the symbolic link
+         (Get-Item ${sourceProgramData}).Delete() 
+
+        # remove the main folder if it's empty
+        Remove-EmptyFolder $dmProgramData
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
@@ -174,20 +174,13 @@ if (Test-Path -Path $sourceProgramData -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourceProgramData}' does not exist."
+    Write-Warning "The symbolic link to '${sourceProgramData}' does not exist."
 
     if (!$doUninstall) {
-        # Check that the DeviousMachines folder exists
-        if (Test-Path -Path $dmProgramData -PathType Container) {
-            Write-Host "Folder '${dmProgramData}' already exist." -ForegroundColor Cyan
-        }
-        else {
-            Write-Warning "The folder '${dmProgramData}' does not exist."
-            Write-Host "Creating '${dmProgramData}' ..." -ForegroundColor Cyan
-                            
-            New-Item -ItemType Directory -Force -Path $dmProgramData
-        }
-                
+
+        # create the DeviousMachines folder if it does not already exists
+        Create-Folder-IfNotExist $dmProgramData
+   
         Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramData -Target $targetProgramData
     }

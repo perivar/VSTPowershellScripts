@@ -8,13 +8,13 @@ param (
 # output if using -Verbose
 $Verbose = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Verbose")
 if ($Verbose) {
-    Write-Verbose "-Verbose flag found on $($PSVersionTable.Platform)"
+    Write-Verbose "-Verbose flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # output if using -Debug
 $Debug = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug")
 if ($Debug) {
-    Write-Debug "-Debug flag found on $($PSVersionTable.Platform)"
+    Write-Debug "-Debug flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # ############### #
@@ -41,7 +41,7 @@ if (!$(GetElevation)) {
     $argumentsList = @(
         '-NoExit'
         '-File'
-        '"' + $MyInvocation.MyCommand.Definition + '"'
+        $(IsOnWindows) ? '"' + $MyInvocation.MyCommand.Definition + '"' : $MyInvocation.MyCommand.Definition
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
         $Verbose ? "-Verbose" : $null

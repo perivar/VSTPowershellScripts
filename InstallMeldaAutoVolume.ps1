@@ -12,13 +12,13 @@ param (
 # output if using -Verbose
 $Verbose = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Verbose")
 if ($Verbose) {
-    Write-Verbose "-Verbose flag found on $($PSVersionTable.Platform)"
+    Write-Verbose "-Verbose flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # output if using -Debug
 $Debug = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug")
 if ($Debug) {
-    Write-Debug "-Debug flag found on $($PSVersionTable.Platform)"
+    Write-Debug "-Debug flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # ############### #
@@ -45,7 +45,7 @@ if (!$(GetElevation)) {
     $argumentsList = @(
         '-NoExit'
         '-File'
-        '"' + $MyInvocation.MyCommand.Definition + '"'
+        $(IsOnWindows) ? '"' + $MyInvocation.MyCommand.Definition + '"' : $MyInvocation.MyCommand.Definition
         $uninstall
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
@@ -121,8 +121,9 @@ if (Test-Path -Path $source -PathType Container) {
 
     if ($answer -eq "Y") {
         Write-Host "We are proceeding to delete the source directory" -ForegroundColor Cyan
-        Write-Host "Removing the folder: '${source}' ..." -ForegroundColor Cyan
+        Write-Host "Removing the symbolic link to: '${source}' ..." -ForegroundColor Cyan
 
+        # remove the symbolic link
         (Get-Item ${source}).Delete() 
     }
     elseif ($answer -eq "N") {
@@ -132,7 +133,7 @@ if (Test-Path -Path $source -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${source}' does not exist."
+    Write-Warning "The symbolic link to '${source}' does not exist."
 
     if (!$doUninstall) {
         Write-Host "We are proceeding to add a symbolic link to the target directory" -ForegroundColor Cyan
@@ -154,8 +155,9 @@ if (Test-Path -Path $meldasourcedir -PathType Container) {
 
     if ($answer -eq "Y") {
         Write-Host "We are proceeding to delete the source directory" -ForegroundColor Cyan
-        Write-Host "Removing the folder: '${meldasourcedir}' ..." -ForegroundColor Cyan
+        Write-Host "Removing the symbolic link to: '${meldasourcedir}' ..." -ForegroundColor Cyan
 
+        # remove the symbolic link
         (Get-Item ${meldasourcedir}).Delete() 
     }
     elseif ($answer -eq "N") {
@@ -192,6 +194,7 @@ if (Test-Path -Path $kernelsource -PathType Leaf) {
         Write-Host "We are proceeding to delete the kernelsource file" -ForegroundColor Cyan
         Write-Host "Removing the file: '${kernelsource}' ..." -ForegroundColor Cyan
 
+        # remove the symbolic link
         (Get-Item ${kernelsource}).Delete() 
     }
     elseif ($answer -eq "N") {
@@ -228,6 +231,7 @@ if (Test-Path -Path $kernelsource64 -PathType Leaf) {
         Write-Host "We are proceeding to delete the kernelsource64 file" -ForegroundColor Cyan
         Write-Host "Removing the file: '${kernelsource64}' ..." -ForegroundColor Cyan
 
+        # remove the symbolic link
         (Get-Item ${kernelsource64}).Delete() 
     }
     elseif ($answer -eq "N") {

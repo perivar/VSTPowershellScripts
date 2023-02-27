@@ -12,13 +12,13 @@ param (
 # output if using -Verbose
 $Verbose = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Verbose")
 if ($Verbose) {
-    Write-Verbose "-Verbose flag found on $($PSVersionTable.Platform)"
+    Write-Verbose "-Verbose flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # output if using -Debug
 $Debug = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug")
 if ($Debug) {
-    Write-Debug "-Debug flag found on $($PSVersionTable.Platform)"
+    Write-Debug "-Debug flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # ############### #
@@ -45,7 +45,7 @@ if (!$(GetElevation)) {
     $argumentsList = @(
         '-NoExit'
         '-File'
-        '"' + $MyInvocation.MyCommand.Definition + '"'
+        $(IsOnWindows) ? '"' + $MyInvocation.MyCommand.Definition + '"' : $MyInvocation.MyCommand.Definition
         $uninstall
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
@@ -119,9 +119,13 @@ if (Test-Path -Path $sourcecommon -PathType Container) {
 
     if ($answer -eq "Y") {
         Write-Host "We are proceeding to delete the ni common massive directory" -ForegroundColor Cyan
-        Write-Host "Removing the folder: '${sourcecommon}' ..." -ForegroundColor Cyan
+        Write-Host "Removing the symbolic link to: '${sourcecommon}' ..." -ForegroundColor Cyan
 
+        # remove the symbolic link
         (Get-Item ${sourcecommon}).Delete() 
+
+        # remove the main folder if it's empty
+        Remove-EmptyFolder $nicommon
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
@@ -130,19 +134,12 @@ if (Test-Path -Path $sourcecommon -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourcecommon}' does not exist."
+    Write-Warning "The symbolic link to '${sourcecommon}' does not exist."
 
     if (!$doUninstall) {
-        # Check that the Native Instrument common folder exists
-        If (-not (Test-Path $nicommon -PathType Container)) {
-            Write-Warning "The folder '${nicommon}' does not exist."
 
-            Write-Host "We are proceeding to add ${nicommon}" -ForegroundColor Cyan
-            New-Item -ItemType Directory -Force -Path $nicommon
-        }
-        else {
-            Write-Host "OK. Native Instruments common folder already exists." -ForegroundColor Green
-        }
+        # create the Native Instrument common folder if it does not already exists
+        Create-Folder-IfNotExist $nicommon
 
         Write-Host "We are proceeding to add a symbolic link to the programdata directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourcecommon -Target $targetcommon
@@ -163,9 +160,16 @@ if (Test-Path -Path $sourcepresets -PathType Container) {
 
     if ($answer -eq "Y") {
         Write-Host "We are proceeding to delete the presets directory" -ForegroundColor Cyan
-        Write-Host "Removing the folder: '${sourcepresets}' ..." -ForegroundColor Cyan
+        Write-Host "Removing the symbolic link to: '${sourcepresets}' ..." -ForegroundColor Cyan
     
+        # remove the symbolic link
         (Get-Item ${sourcepresets}).Delete() 
+
+        # remove the main folder if it's empty
+        Remove-EmptyFolder $nimassivepresets
+
+        # remove the main folder if it's empty
+        Remove-EmptyFolder $nipresets
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
@@ -174,31 +178,15 @@ if (Test-Path -Path $sourcepresets -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourcepresets}' does not exist."
+    Write-Warning "The symbolic link to '${sourcepresets}' does not exist."
 
     if (!$doUninstall) {
 
-        # Check that the Native Instrument preset folder exists
-        If (-not (Test-Path $nipresets -PathType Container)) {
-            Write-Warning "The folder '${nipresets}' does not exist."
-        
-            Write-Host "We are proceeding to add ${nipresets}" -ForegroundColor Cyan
-            New-Item -ItemType Directory -Force -Path $nipresets
-        }
-        else {
-            Write-Host "OK. Native Instruments preset folder already exists." -ForegroundColor Green
-        }
-                
-        # Check that the Native Instrument Massive preset folder exists
-        If (-not (Test-Path $nimassivepresets -PathType Container)) {
-            Write-Warning "The folder '${nimassivepresets}' does not exist."
-        
-            Write-Host "We are proceeding to add ${nimassivepresets}" -ForegroundColor Cyan
-            New-Item -ItemType Directory -Force -Path $nimassivepresets
-        }
-        else {
-            Write-Host "OK. Native Instruments Massive preset folder already exists." -ForegroundColor Green
-        }
+        # create the Native Instrument preset folder if it does not already exists
+        Create-Folder-IfNotExist $nipresets
+
+        # create the Native Instrument Massive preset folder if it does not already exists
+        Create-Folder-IfNotExist $nimassivepresets
 
         Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourcepresets -Target $targetpresets

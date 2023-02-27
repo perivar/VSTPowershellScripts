@@ -12,13 +12,13 @@ param (
 # output if using -Verbose
 $Verbose = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Verbose")
 if ($Verbose) {
-    Write-Verbose "-Verbose flag found on $($PSVersionTable.Platform)"
+    Write-Verbose "-Verbose flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # output if using -Debug
 $Debug = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug")
 if ($Debug) {
-    Write-Debug "-Debug flag found on $($PSVersionTable.Platform)"
+    Write-Debug "-Debug flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # ############### #
@@ -45,7 +45,7 @@ if (!$(GetElevation)) {
     $argumentsList = @(
         '-NoExit'
         '-File'
-        '"' + $MyInvocation.MyCommand.Definition + '"'
+        $(IsOnWindows) ? '"' + $MyInvocation.MyCommand.Definition + '"' : $MyInvocation.MyCommand.Definition
         $uninstall
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
@@ -109,9 +109,13 @@ if (Test-Path -Path $source -PathType Container) {
 
     if ($answer -eq "Y") {
         Write-Host "We are proceeding to delete the source directory" -ForegroundColor Cyan
-        Write-Host "Removing the folder: '${source}' ..." -ForegroundColor Cyan
+        Write-Host "Removing the symbolic link to: '${source}' ..." -ForegroundColor Cyan
 
-        (Get-Item ${source}).Delete() 
+        # remove the symbolic link
+       (Get-Item ${source}).Delete() 
+
+        # remove the main folder if it's empty
+        Remove-EmptyFolder $liquidsonics       
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
@@ -120,20 +124,12 @@ if (Test-Path -Path $source -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${source}' does not exist."
+    Write-Warning "The symbolic link to '${source}' does not exist."
 
     if (!$doUninstall) {
 
-        # Check that the LiquidSonics folder exists
-        If (-not (Test-Path $liquidsonics -PathType Container)) {
-            Write-Warning "The folder '${liquidsonics}' does not exist."
-        
-            Write-Host "We are proceeding to add ${liquidsonics}" -ForegroundColor Cyan
-            New-Item -ItemType Directory -Force -Path $liquidsonics
-        }
-        else {
-            Write-Host "OK. LiquidSonics folder already exists." -ForegroundColor Green
-        }
+        # create the LiquidSonics folder if it does not already exists
+        Create-Folder-IfNotExist $liquidsonics
 
         Write-Host "We are proceeding to add a symbolic link to the target directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $source -Target $target

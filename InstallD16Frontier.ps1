@@ -12,13 +12,13 @@ param (
 # output if using -Verbose
 $Verbose = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Verbose")
 if ($Verbose) {
-    Write-Verbose "-Verbose flag found on $($PSVersionTable.Platform)"
+    Write-Verbose "-Verbose flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # output if using -Debug
 $Debug = [bool]$PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug")
 if ($Debug) {
-    Write-Debug "-Debug flag found on $($PSVersionTable.Platform)"
+    Write-Debug "-Debug flag found on Platform: $($PSVersionTable.Platform)"
 }
 
 # ############### #
@@ -41,11 +41,11 @@ if (!$(GetElevation)) {
     }
     
     Write-Error "$($MyInvocation.MyCommand.Name) is not running as Administrator, attempting to elevate..."
-    
+
     $argumentsList = @(
         '-NoExit'
         '-File'
-        '"' + $MyInvocation.MyCommand.Definition + '"'
+        $(IsOnWindows) ? '"' + $MyInvocation.MyCommand.Definition + '"' : $MyInvocation.MyCommand.Definition
         $uninstall
         "RELAUNCHING"
         $Debug ? "-Debug" : $null
@@ -118,9 +118,13 @@ if (Test-Path -Path $sourceProgramFiles -PathType Container) {
 
     if ($answer -eq "Y") {
         Write-Host "We are proceeding to delete the D16 Group Program Files Frontier Directory" -ForegroundColor Cyan
-        Write-Host "Removing the folder: '${sourceProgramFiles}' ..." -ForegroundColor Cyan
+        Write-Host "Removing the symbolic link to: '${sourceProgramFiles}' ..." -ForegroundColor Cyan
 
+        # remove the symbolic link
         (Get-Item ${sourceProgramFiles}).Delete() 
+
+        # remove the main folder if it's empty
+        Remove-EmptyFolder $d16ProgramFiles
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
@@ -129,20 +133,12 @@ if (Test-Path -Path $sourceProgramFiles -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourceProgramFiles}' does not exist."
+    Write-Warning "The symbolic link to '${sourceProgramFiles}' does not exist."
 
     if (!$doUninstall) {
 
-        # Check that the D16 Group folder exists
-        if (Test-Path -Path $d16ProgramFiles -PathType Container) {
-            Write-Host "Folder '${d16ProgramFiles}' already exist." -ForegroundColor Cyan
-        }
-        else {
-            Write-Warning "The folder '${d16ProgramFiles}' does not exist."
-            Write-Host "Creating '${d16ProgramFiles}' ..." -ForegroundColor Cyan
-                    
-            New-Item -ItemType Directory -Force -Path $d16ProgramFiles
-        }
+        # create the D16 Group folder if it does not already exists
+        Create-Folder-IfNotExist $d16ProgramFiles
 
         Write-Host "We are proceeding to add a symbolic link to the D16 Group Program Files Frontier Directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramFiles -Target $targetProgramFiles
@@ -163,9 +159,13 @@ if (Test-Path -Path $sourceProgramData -PathType Container) {
 
     if ($answer -eq "Y") {
         Write-Host "We are proceeding to delete the D16 Group ProgramData Frontier directory" -ForegroundColor Cyan
-        Write-Host "Removing the folder: '${sourceProgramData}' ..." -ForegroundColor Cyan
+        Write-Host "Removing the symbolic link to: '${sourceProgramData}' ..." -ForegroundColor Cyan
     
+        # remove the symbolic link
         (Get-Item ${sourceProgramData}).Delete() 
+
+        # remove the main folder if it's empty
+        Remove-EmptyFolder $d16ProgramData
     }
     elseif ($answer -eq "N") {
         Write-Host "You selected NO, exiting ..." -ForegroundColor Cyan
@@ -174,19 +174,12 @@ if (Test-Path -Path $sourceProgramData -PathType Container) {
 
 }
 else { 
-    Write-Warning "The folder '${sourceProgramData}' does not exist."
+    Write-Warning "The symbolic link to '${sourceProgramData}' does not exist."
 
     if (!$doUninstall) {
-        # Check that the D16 Group folder exists
-        if (Test-Path -Path $d16ProgramData -PathType Container) {
-            Write-Host "Folder '${d16ProgramData}' already exist." -ForegroundColor Cyan
-        }
-        else {
-            Write-Warning "The folder '${d16ProgramData}' does not exist."
-            Write-Host "Creating '${d16ProgramData}' ..." -ForegroundColor Cyan
-                            
-            New-Item -ItemType Directory -Force -Path $d16ProgramData
-        }
+                
+        # create the D16 Group folder if it does not already exists
+        Create-Folder-IfNotExist $d16ProgramData
                 
         Write-Host "We are proceeding to add a symbolic link to the roaming directory" -ForegroundColor Cyan
         New-Item -ItemType SymbolicLink -Path $sourceProgramData -Target $targetProgramData

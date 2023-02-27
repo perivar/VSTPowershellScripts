@@ -16,8 +16,18 @@ Function GetEnvironmentVariables {
 
     $cloudHomeDir = [Environment]::GetEnvironmentVariable($cloudHomeEnvVar)
     $userName = [Environment]::GetEnvironmentVariable("UserName") # $env:USERNAME
-    #$userDocuments = [Environment]::GetFolderPath("MyDocuments") # e.g. C:\Users\<user>\OneDrive\Documents
-    $userDocuments = Join-Path $env:USERPROFILE "Documents" # e.g. C:\Users\<user>\Documents
+    $userProfile = [Environment]::GetEnvironmentVariable("UserProfile")
+
+    # set user document folder based on the userProfile
+    if ($null -ne $userProfile) {
+        # user document path that ignores if the user has made changes.
+        $userDocuments = Join-Path $userProfile "Documents" # e.g. C:\Users\<user>\Documents
+    }
+    else {
+        # user document path that takes into account if the user has moved it, e.g. to OneDrive
+        $userDocuments = [Environment]::GetFolderPath("MyDocuments") # e.g. C:\Users\<user>\OneDrive\Documents
+    }
+    
     $appData = [Environment]::GetFolderPath('ApplicationData') # $env:APPDATA (i.e. C:\Users\<user>\AppData\Roaming)
     $localAppData = [Environment]::GetFolderPath('LocalApplicationData') # $env:LOCALAPPDATA (i.e. C:\Users\<user>\AppData\Local)
     $programData = [Environment]::GetFolderPath("CommonApplicationData") # $env:ProgramData
@@ -25,11 +35,14 @@ Function GetEnvironmentVariables {
     $programFilesx86 = [Environment]::GetEnvironmentVariable("ProgramFiles(x86)") # ${Env:ProgramFiles(x86)}
     $commonProgramFiles = [Environment]::GetEnvironmentVariable("CommonProgramFiles") # ${Env:CommonProgramFiles}
     $commonProgramFilesx86 = [Environment]::GetEnvironmentVariable("CommonProgramFiles(x86)") # ${Env:CommonProgramFiles(x86)}
+
+    $tempDir = [IO.Path]::GetTempPath()
  
     Write-Host ""
     Write-Host "Environment Variables:" -ForegroundColor Magenta
     Write-Host "${cloudHomeEnvVar}: $cloudHomeDir" -ForegroundColor Magenta
     Write-Host "UserName: $userName" -ForegroundColor Magenta
+    Write-Host "UserProfile: $userProfile" -ForegroundColor Magenta
     Write-Host "UserDocuments: $userDocuments" -ForegroundColor Magenta
     Write-Host "AppData: $appData" -ForegroundColor Magenta
     Write-Host "LocalAppData: $localAppData" -ForegroundColor Magenta
@@ -38,15 +51,15 @@ Function GetEnvironmentVariables {
     Write-Host "ProgramFilesx86: $programFilesx86" -ForegroundColor Magenta
     Write-Host "CommonProgramFiles: $commonProgramFiles" -ForegroundColor Magenta
     Write-Host "CommonProgramFilesx86: $commonProgramFilesx86" -ForegroundColor Magenta
+    Write-Host "tempDir: $tempDir" -ForegroundColor Magenta
     Write-Host ""
 
     #############################
     # DEBUG WITH DUMMY VARIABLES
-    if ($Debug) {
-        Write-Host "!!!!!! DEBUGGING WITH DUMMY VARIABLES !!!!!!!"  -ForegroundColor Red
-    
+    if ($Debug) {    
         $cloudHomeDir = "/Users/perivar/OneDrive/"
         $userName = $(whoami)
+        $userProfile = "/Users/perivar/Temp/"
         $userDocuments = "/Users/perivar/Temp/userDocuments"
         $appData = "/Users/perivar/Temp/appdata"
         $localAppData = "/Users/perivar/Temp/localAppData"
@@ -55,6 +68,22 @@ Function GetEnvironmentVariables {
         $programFilesx86 = "/Users/perivar/Temp/programFilesx86"
         $commonProgramFiles = "/Users/perivar/Temp/commonProgramFiles"
         $commonProgramFilesx86 = "/Users/perivar/Temp/commonProgramFilesx86"
+
+        Write-Host ""
+        Write-Host "!! Setting Dummy Environment Variables: !!" -ForegroundColor Red
+        Write-Host "${cloudHomeEnvVar}: $cloudHomeDir" -ForegroundColor Red
+        Write-Host "UserName: $userName" -ForegroundColor Red
+        Write-Host "UserProfile: $userProfile" -ForegroundColor Red
+        Write-Host "UserDocuments: $userDocuments" -ForegroundColor Red
+        Write-Host "AppData: $appData" -ForegroundColor Red
+        Write-Host "LocalAppData: $localAppData" -ForegroundColor Red
+        Write-Host "ProgramData: $programData" -ForegroundColor Red
+        Write-Host "ProgramFiles: $programFiles" -ForegroundColor Red
+        Write-Host "ProgramFilesx86: $programFilesx86" -ForegroundColor Red
+        Write-Host "CommonProgramFiles: $commonProgramFiles" -ForegroundColor Red
+        Write-Host "CommonProgramFilesx86: $commonProgramFilesx86" -ForegroundColor Red
+        Write-Host "tempDir: $tempDir" -ForegroundColor Red
+        Write-Host ""    
     }
     #############################
 

@@ -10,6 +10,53 @@
 # or
 # $answer = GetYN "Do you want to delete the temp directory? (Y/N)"
 
+
+# https://jonlabelle.com/snippets/view/powershell/get-the-current-os-platform-in-powershell
+# use these methods like:
+# if $(IsOnWindows)
+# if (!$(IsOnMac)) 
+# (!$(isOnLinux)) ? do something : do something else
+
+Function isOnWindows {
+    # This will work on 6.0 and later but is missing on
+    # older versions
+    if (Test-Path -Path 'variable:global:IsWindows') {
+        return ParseBool (Get-Content -Path 'variable:global:IsWindows')
+    }
+    # This should catch older versions
+    elseif (Test-Path -Path 'env:os') {
+        return ParseBool ((Get-Content -Path 'env:os').StartsWith("Windows"))
+    }
+    # If all else fails
+    else {
+        return $false
+    }
+}
+  
+Function isOnLinux {
+    if (Test-Path -Path 'variable:global:IsLinux') {
+        return ParseBool (Get-Content -Path 'variable:global:IsLinux')
+    }
+  
+    return $false
+}
+  
+Function isOnMac {
+    # The variable to test if you are on Mac OS changed from
+    # IsOSX to IsMacOS. Because I have Set-StrictMode -Version Latest
+    # trying to access a variable that is not set will crash.
+    # So I use Test-Path to determine which exist and which to use.
+    if (Test-Path -Path 'variable:global:IsMacOS') {
+        return ParseBool (Get-Content -Path 'variable:global:IsMacOS')
+    }
+    elseif (Test-Path -Path 'variable:global:IsOSX') {
+        return ParseBool (Get-Content -Path 'variable:global:IsOSX')
+    }
+    else {
+        return $false
+    }
+}
+
 Function ParseBool {
     [CmdletBinding()]
     param(
@@ -229,4 +276,61 @@ Function Remove-RegistryItem {
         Write-Verbose "The key $RegPath does not exist."
     }
    
+}
+
+# Remove empty directories locally
+Function Remove-EmptyFolder {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position = 0)]
+        [String]$path,
+
+        # Remove hidden files, like thumbs.db
+        [Boolean]$removeHiddenFiles = $true,
+
+        # Set to true to test the script
+        [Boolean]$whatIf = $false
+    )
+
+    # Get hidden files or not. Depending on removeHiddenFiles setting
+    $getHiddelFiles = !$removeHiddenFiles
+
+    # Go through each subfolder, 
+    Foreach ($subFolder in Get-ChildItem -Force -Literal $path -Directory) {
+        # Call the function recursively
+        Remove-EmptyFolder -path $subFolder.FullName $removeHiddenFiles $whatIf
+    }
+    
+    # Get all child items
+    $subItems = Get-ChildItem -Force:$getHiddelFiles -LiteralPath $path
+
+    # If there are no items, then we can delete the folder
+    # Exluce folder: If (($subItems -eq $null) -and (-Not($path.contains("DfsrPrivate")))) 
+    If ($null -eq $subItems) {
+        Write-Host "Removing empty folder '${path}'" -ForegroundColor Cyan
+        Remove-Item -Force -Recurse:$removeHiddenFiles -LiteralPath $Path -WhatIf:$whatIf
+    }
+}
+
+Function Create-Folder-IfNotExist {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position = 0)]
+        [String]$path,
+
+        # Set to true to test the script
+        [Boolean]$whatIf = $false
+    )
+
+    # Check that the folder exists
+    if (Test-Path -Path $path -PathType Container) {
+        Write-Host "Folder '${path}' already exist." -ForegroundColor Cyan
+    }
+    else {
+        Write-Warning "The folder '${path}' does not exist."
+        Write-Host "Creating the folder: '${path}' ..." -ForegroundColor Cyan
+                
+        New-Item -ItemType Directory -Force -Path $path -WhatIf:$whatIf
+    }
+
 }
