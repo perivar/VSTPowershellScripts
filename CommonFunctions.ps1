@@ -306,24 +306,28 @@ Function Remove-EmptyFolder {
     # Get hidden files or not. Depending on removeHiddenFiles setting
     $getHiddelFiles = !$removeHiddenFiles
 
-    # Go through each subfolder, 
-    Foreach ($subFolder in Get-ChildItem -Force -Literal $path -Directory) {
-        # Call the function recursively
-        Remove-EmptyFolder -path $subFolder.FullName $removeHiddenFiles $whatIf
-    }
-    
-    # Get all child items
-    $subItems = Get-ChildItem -Force:$getHiddelFiles -LiteralPath $path
+    if (-not (Test-Path -Path $path)) {
+        Write-Warning "Not removing empty folder since '${path}' does not exist."
+    } else {
+        # Go through each subfolder, 
+        Foreach ($subFolder in Get-ChildItem -Force -Literal $path -Directory) {
+            # Call the function recursively
+            Remove-EmptyFolder -path $subFolder.FullName $removeHiddenFiles $whatIf
+        }
+        
+        # Get all child items
+        $subItems = Get-ChildItem -Force:$getHiddelFiles -LiteralPath $path
 
-    # If there are no items, then we can delete the folder
-    # Exluce folder: If (($subItems -eq $null) -and (-Not($path.contains("DfsrPrivate")))) 
-    If ($null -eq $subItems) {
-        Write-Host "Removing empty folder '${path}'" -ForegroundColor Cyan
-        Remove-Item -Force -Recurse:$removeHiddenFiles -LiteralPath $Path -WhatIf:$whatIf
-    }
-    else {
-        Write-Warning "Not removing ${path} since it is not empty!"
-    }
+        # If there are no items, then we can delete the folder
+        # Exclude folder: If (($subItems -eq $null) -and (-Not($path.contains("DfsrPrivate")))) 
+        If ($null -eq $subItems) {
+            Write-Host "Removing empty folder '${path}'" -ForegroundColor Cyan
+            Remove-Item -Force -Recurse:$removeHiddenFiles -LiteralPath $Path -WhatIf:$whatIf
+        }
+        else {
+            Write-Warning "Not removing ${path} since it is not empty!"
+        }
+    }    
 }
 
 Function New-Folder-IfNotExist {

@@ -87,25 +87,32 @@ function MoveFilesExceptRecursively ($sourceDirectory, $destinationDirectory, $f
         New-Item -Path $destinationDirectory -ItemType Directory | Out-Null
     }
 
-    #region move files (does support recursive folders)
-    $files = Get-ChildItem $sourceDirectory -File -Recurse -Exclude $fileExcludeList
+    # Check if sourceDirectory exists
+    if (-not (Test-Path -Path $sourceDirectory)) {
+        Write-Warning "Not moving files since folder '${sourceDirectory}' does not exist."
+    } else {
+        #region move files (does support recursive folders)
+        $files = Get-ChildItem $sourceDirectory -File -Recurse -Exclude $fileExcludeList
 
-    foreach ($f in $files) {    
-        Write-Host "Moving '$($f.FullName)' ..." -ForegroundColor Cyan
+        foreach ($f in $files) {    
+            Write-Host "Moving '$($f.FullName)' ..." -ForegroundColor Cyan
 
-        $destinationPath = Join-Path $destinationDirectory $f.FullName.Substring($sourceDirectory.length)
-        #Write-Host "destinationPath: $destinationPath" -ForegroundColor Magenta
+            # Move file to sub-directory and force (overwrite if already exist) 
+            # $destinationPath = Join-Path $destinationDirectory $f.FullName.Substring($sourceDirectory.length)
+            # Write-Host "destinationPath: $destinationPath" -ForegroundColor Magenta
+            # Move-Item -Path $f -Destination $destinationPath -Force
 
-        # Move file and force (overwrite if already exist) 
-        #Move-Item -Path $f -Destination $destinationPath -Force
-        Move-Item -Path $f -Destination $destinationDirectory -Force
-    } 
-    #endregion
-
+            # Move file and force (overwrite if already exist) 
+            Move-Item -Path $f -Destination $destinationDirectory -Force
+        } 
+        #endregion
+    }
 }
 
 Write-Host "Cleaning up $sourceDirectoryx64"
 MoveFilesExceptRecursively $sourceDirectoryx64 $destinationDirectoryx64 $fileExcludeList
+Remove-EmptyFolder $sourceDirectoryx64
 
 Write-Host "Cleaning up $sourceDirectoryx86"
 MoveFilesExceptRecursively $sourceDirectoryx86 $destinationDirectoryx86 $fileExcludeList
+Remove-EmptyFolder $sourceDirectoryx86
