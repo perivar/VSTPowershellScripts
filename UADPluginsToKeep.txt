@@ -5,8 +5,18 @@ UAD EMT 140.dll
 UAD Fairchild 670 Legacy.dll
 UAD Precision Limiter.dll
 UAD Pultec EQP-1A Legacy.dll
+UAD Pultec EQP-1A.dll
+UAD Pultec HLF-3C.dll
+UAD Pultec MEQ-5.dll
 UAD Pultec-Pro Legacy.dll
 UAD RealVerb-Pro.dll
 UAD SSL E Channel Strip Legacy.dll
 UAD SSL G Bus Compressor Legacy.dll
+UAD Teletronix LA-2.dll
+UAD Teletronix LA-2A Gray.dll
 UAD Teletronix LA-2A Legacy.dll
+UAD Teletronix LA-2A Silver.dll
+UAD Century Tube Channel Strip.dll
+UAD Pure Plate.dll
+UAD Galaxy Tape Echo.dll
+UAD Oxide Tape.dll
