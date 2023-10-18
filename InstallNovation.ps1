@@ -70,7 +70,7 @@ Write-Host "Parameter found: uninstall: $doUninstall" -ForegroundColor Green
 $environment = GetEnvironmentVariables "OneDrive"
 
 # define paths
-$source = Join-Path $environment.programFilesx86 "Novation"
+$source = Join-Path $environment.programFiles "Novation"
 $target = Join-Path $environment.cloudHomeDir "Audio" "Audio Software" "Novation"
 
 Write-Host ""
@@ -140,12 +140,9 @@ else {
         # Adding registry keys 
         Write-Host "We are proceeding to add registry keys" -ForegroundColor Cyan
 
-        # Default is to add Novation to the 32 bit registry (Wow6432Node) otherwise use /f /reg:64		
-        # reg add "HKLM\Software\Novation" /f /reg:32
-        # reg add "HKLM\Software\Novation\BassStation" /v "InstallDir" /t REG_SZ /d "C:\\Program Files (x86)\\Novation\\Bass Station" /f /reg:32
-        # reg add "HKLM\Software\Novation\V-Station" /v "InstallDir" /t REG_SZ /d "C:\\Program Files (x86)\\Novation\\V-Station" /f /reg:32
-        Add-RegistryItem -RegPath "HKLM:\Software\Novation\BassStation" -RegValue "InstallDir" -RegData "C:\Program Files (x86)\Novation\Bass Station" -RegType String
-        Add-RegistryItem -RegPath "HKLM:\Software\Novation\V-Station" -RegValue "InstallDir" -RegData "C:\Program Files (x86)\Novation\V-Station" -RegType String
+        # Add Novation to the 32 bit registry (WOW6432Node)
+        Add-RegistryItem -RegPath "HKLM:\Software\WOW6432Node\Novation\BassStation" -RegValue "InstallDir" -RegData "C:\Program Files\Novation\Bass Station" -RegType String
+        Add-RegistryItem -RegPath "HKLM:\Software\WOW6432Node\Novation\V-Station" -RegValue "InstallDir" -RegData "C:\Program Files\Novation\V-Station" -RegType String
     }
 }
 
