@@ -9,7 +9,7 @@ param (
     [String]$scriptStatus 
 )
 
-Write-Error "THIS IS NO LONGER IN USE - SEE FOLDER AND CHECK FOR A symbolic link INSTALLER"
+Write-Error "THIS SCRIPT IS NO LONGER IN USE! Check for a symbolic link installer instead! (SymLink Installer.cmd)"
 exit
 
 # output if using -Verbose
