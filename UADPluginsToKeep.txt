@@ -1,22 +1,44 @@
 UAD UA 1176LN Legacy.dll
+UAD UA 1176LN Legacy.vst3
 UAD UA 1176SE Legacy.dll
+UAD UA 1176SE Legacy.vst3
 UAD Cambridge.dll
+UAD Cambridge.vst3
 UAD EMT 140.dll
+UAD EMT 140.vst3
 UAD Fairchild 670 Legacy.dll
+UAD Fairchild 670 Legacy.vst3
 UAD Precision Limiter.dll
+UAD Precision Limiter.vst3
 UAD Pultec EQP-1A Legacy.dll
+UAD Pultec EQP-1A Legacy.vst3
 UAD Pultec EQP-1A.dll
+UAD Pultec EQP-1A.vst3
 UAD Pultec HLF-3C.dll
+UAD Pultec HLF-3C.vst3
 UAD Pultec MEQ-5.dll
+UAD Pultec MEQ-5.vst3
 UAD Pultec-Pro Legacy.dll
+UAD Pultec-Pro Legacy.vst3
 UAD RealVerb-Pro.dll
+UAD RealVerb-Pro.vst3
 UAD SSL E Channel Strip Legacy.dll
+UAD SSL E Channel Strip Legacy.vst3
 UAD SSL G Bus Compressor Legacy.dll
+UAD SSL G Bus Compressor Legacy.vst3
 UAD Teletronix LA-2.dll
+UAD Teletronix LA-2.vst3
 UAD Teletronix LA-2A Gray.dll
+UAD Teletronix LA-2A Gray.vst3
 UAD Teletronix LA-2A Legacy.dll
+UAD Teletronix LA-2A Legacy.vst3
 UAD Teletronix LA-2A Silver.dll
+UAD Teletronix LA-2A Silver.vst3
 UAD Century Tube Channel Strip.dll
+UAD Century Tube Channel Strip.vst3
 UAD Pure Plate.dll
+UAD Pure Plate.vst3
 UAD Galaxy Tape Echo.dll
+UAD Galaxy Tape Echo.vst3
 UAD Oxide Tape.dll
+UAD Oxide Tape.vst3

@@ -65,6 +65,8 @@ $sourceDirectoryx64 = Join-Path $environment.programFiles "Steinberg" "VSTPlugin
 $destinationDirectoryx64 = Join-Path $environment.programFiles "Steinberg" "VSTPlugins-Disabled" "Universal Audio"
 $sourceDirectoryx86 = Join-Path $environment.programFilesx86 "Steinberg" "VSTPlugins" "Universal Audio"
 $destinationDirectoryx86 = Join-Path $environment.programFilesx86 "Steinberg" "VSTPlugins-Disabled" "Universal Audio"
+$sourceDirectoryVST3 = Join-Path $environment.commonProgramFiles "VST3" "Universal Audio"
+$destinationDirectoryVST3 = Join-Path $environment.commonProgramFiles "VST3-Disabled" "Universal Audio"
 
 Write-Host ""
 Write-Host "Directory Paths:" -ForegroundColor Magenta
@@ -72,6 +74,8 @@ Write-Host "sourceDirectoryx64: $sourceDirectoryx64" -ForegroundColor Magenta
 Write-Host "destinationDirectoryx64: $destinationDirectoryx64" -ForegroundColor Magenta
 Write-Host "sourceDirectoryx86: $sourceDirectoryx86" -ForegroundColor Magenta
 Write-Host "destinationDirectoryx86: $destinationDirectoryx86" -ForegroundColor Magenta
+Write-Host "sourceDirectoryVST3: $sourceDirectoryVST3" -ForegroundColor Magenta
+Write-Host "destinationDirectoryVST3: $destinationDirectoryVST3" -ForegroundColor Magenta
 Write-Host ""
 
 # Make sure we can find the exclude file
@@ -116,3 +120,7 @@ Remove-EmptyFolder $sourceDirectoryx64
 Write-Host "Cleaning up $sourceDirectoryx86"
 MoveFilesExceptRecursively $sourceDirectoryx86 $destinationDirectoryx86 $fileExcludeList
 Remove-EmptyFolder $sourceDirectoryx86
+
+Write-Host "Cleaning up $sourceDirectoryVST3"
+MoveFilesExceptRecursively $sourceDirectoryVST3 $destinationDirectoryVST3 $fileExcludeList
+Remove-EmptyFolder $sourceDirectoryVST3
