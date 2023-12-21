@@ -2,6 +2,12 @@ UAD UA 1176LN Legacy.dll
 UAD UA 1176LN Legacy.vst3
 UAD UA 1176SE Legacy.dll
 UAD UA 1176SE Legacy.vst3
+UAD UA 1176 Rev A.dll
+UAD UA 1176 Rev A.vst3
+UAD UA 1176AE.dll
+UAD UA 1176AE.vst3
+UAD UA 1176LN Rev E.dll
+UAD UA 1176LN Rev E.vst3
 UAD Cambridge.dll
 UAD Cambridge.vst3
 UAD EMT 140.dll
@@ -42,3 +48,5 @@ UAD Galaxy Tape Echo.dll
 UAD Galaxy Tape Echo.vst3
 UAD Oxide Tape.dll
 UAD Oxide Tape.vst3
+UAD Studio D Chorus.dll
+UAD Studio D Chorus.vst3
