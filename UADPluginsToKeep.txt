@@ -12,8 +12,12 @@ UAD Cambridge.dll
 UAD Cambridge.vst3
 UAD EMT 140.dll
 UAD EMT 140.vst3
+UAD Fairchild 660.dll
+UAD Fairchild 660.vst3
 UAD Fairchild 670 Legacy.dll
 UAD Fairchild 670 Legacy.vst3
+UAD Fairchild 670.dll
+UAD Fairchild 670.vst3
 UAD Precision Limiter.dll
 UAD Precision Limiter.vst3
 UAD Pultec EQP-1A Legacy.dll
