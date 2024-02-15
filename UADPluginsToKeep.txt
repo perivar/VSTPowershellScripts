@@ -54,3 +54,5 @@ UAD Oxide Tape.dll
 UAD Oxide Tape.vst3
 UAD Studio D Chorus.dll
 UAD Studio D Chorus.vst3
+UAD Brigade Chorus.dll
+UAD Brigade Chorus.vst3
